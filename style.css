@@ -1,13 +1,24 @@
 /*
  * Style sheet for the Projects Collection site
- *
- * The design is inspired by Amazon's primary orange (#FF9900) and a
- * complementary blue (#146EB4). Bubble-like buttons link out to
- * individual tools. Modern typography and layout make the site
- * friendly on both desktop and mobile devices.
+ * Redesign featuring glassmorphism, animated backgrounds, and interactive elements.
  */
 
-/* Reset/normalize some default styles */
+/* Define color palette and variables */
+:root {
+  --bg-color: #0d1b2a;
+  --header-grad-start: #102f45;
+  --header-grad-mid: #112240;
+  --primary-text: #f5f6fa;
+  --secondary-text: #cbd5e1;
+  --accent-orange: #ff9900;
+  --accent-blue: #146eb4;
+  --card-bg: rgba(20, 37, 58, 0.25);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  --card-hover-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Reset and base styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -18,161 +29,178 @@ html,
 body {
   height: 100%;
   font-family: 'Poppins', sans-serif;
-  /* Dark theme background and light text similar to the Amazon Wave Check site */
-  background: #0d1b2a;
-  color: #f5f6fa;
+  background-color: var(--bg-color);
+  color: var(--primary-text);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
+/* Animated Aurora Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 10% 20%, rgba(255, 153, 0, 0.2), transparent 40%),
+              radial-gradient(circle at 80% 90%, rgba(20, 110, 180, 0.2), transparent 40%);
+  animation: aurora 20s linear infinite;
+}
+
+@keyframes aurora {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Header */
 header {
   text-align: center;
-  padding: 4rem 1rem 3rem;
-  /* Use a dark gradient for the header to match the reference site */
-  background: linear-gradient(135deg, #102f45 0%, #112240 50%, #0d1b2a 100%);
-  color: #f5f6fa;
+  /* Increased padding to give the floating text more space */
+  padding: 8rem 1rem 6rem; 
+  /* Removed the background to let the aurora show through */
+  background: transparent; 
   position: relative;
-  overflow: hidden;
-}
-
-/* Decorative circles in the header for a playful, modern look */
-header::before,
-header::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-header::before {
-  width: 600px;
-  height: 600px;
-  top: -300px;
-  left: -300px;
-  /* Subtle radial glow using Amazon orange for accents */
-  background: radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, rgba(255, 153, 0, 0) 70%);
-}
-
-header::after {
-  width: 400px;
-  height: 400px;
-  bottom: -200px;
-  right: -200px;
-  /* Second radial accent */
-  background: radial-gradient(circle, rgba(255, 153, 0, 0.3) 0%, rgba(255, 153, 0, 0) 70%);
 }
 
 header h1 {
-  font-size: 2.5rem;
+  font-size: 4.5rem; /* Larger font size for more impact */
   font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #f5f6fa;
+  margin-bottom: 0.75rem;
+  
+  /* Modern text gradient effect */
+  background: linear-gradient(45deg, var(--primary-text) 50%, var(--accent-orange));
+  -webkit-background-clip: text; /* Required for gradient to apply to text */
+  background-clip: text;
+  color: transparent; /* Makes the text itself transparent to show the gradient */
+
+  /* A stronger shadow to make the text 'pop' from the animated background */
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 header p {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 300;
   opacity: 0.8;
-  color: #cbd5e1;
+  color: var(--secondary-text);
 }
 
+/* Main content area */
 main {
   max-width: 1200px;
-  margin: -2rem auto 0;
-  padding: 0 1rem 4rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
 }
 
-/* Container for bubbles */
-.bubble-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+/* Grid container for cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
-  padding-top: 4rem;
+  padding-top: 2rem;
 }
 
-/* Styles for each bubble link */
-.bubble {
+/* Card styles (Glassmorphism) */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  text-decoration: none;
+  color: var(--primary-text);
+  aspect-ratio: 1 / 1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform; /* Performance optimization for animations */
+  box-shadow: 0 8px 30px var(--card-shadow);
+  
+  /* Initial state for load-in animation */
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Style for when the card becomes visible */
+.card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card:hover {
+  box-shadow: 0 12px 40px var(--card-hover-shadow);
+  border-color: rgba(255, 153, 0, 0.5);
+}
+
+.card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  color: #f5f6fa;
-  text-decoration: none;
-  position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  height: 100%;
+  padding: 1rem;
+  text-align: center;
 }
 
-/* Icon styling inside bubbles */
-.bubble .icon {
+/* Icon styling inside cards */
+.card .icon {
   width: 48px;
   height: 48px;
-  /* Use Amazon orange for icon strokes on dark background */
-  stroke: #ff9900;
+  stroke: var(--accent-orange);
   fill: none;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
 }
 
-/* Gradient backgrounds for bubbles: use orange and blue offset for dynamic look */
-.bubble:nth-child(odd) {
-  /* Dark-themed gradient for odd bubbles */
-  background: linear-gradient(145deg, #102f45 0%, #1b3b59 50%, #23496e 100%);
+.card:hover .icon {
+    transform: scale(1.1);
 }
 
-.bubble:nth-child(even) {
-  /* Dark-themed gradient for even bubbles */
-  background: linear-gradient(145deg, #23496e 0%, #1b3b59 50%, #102f45 100%);
-}
-
-.bubble i {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  color: #ff9900;
-}
-
-.bubble span {
-  font-size: 1rem;
+.card span {
+  font-size: 1.1rem;
   font-weight: 500;
-  text-align: center;
-  padding: 0 0.5rem;
-  color: #f5f6fa;
 }
 
-/* Hover effect: enlarge slightly and intensify shadow */
-.bubble:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+.card .description {
+    font-size: 0.875rem;
+    color: var(--secondary-text);
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    margin-top: 0.25rem;
 }
 
-/* Footer styling */
+.card:hover .description {
+    max-height: 50px; /* Adjust as needed */
+    opacity: 1;
+}
+
+/* Footer */
 footer {
   text-align: center;
   padding: 2rem 1rem;
-  background-color: #0d1b2a;
+  background-color: transparent;
   color: #8492a6;
   font-size: 0.875rem;
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
+  header {
+    /* Adjust padding for smaller screens */
+    padding: 6rem 1rem 4rem; 
+  }
   header h1 {
-    font-size: 2rem;
+    /* Adjusted font size for mobile */
+    font-size: 2.75rem; 
+    line-height: 1.2;
   }
   header p {
     font-size: 1rem;
   }
-  .bubble {
-    width: 130px;
-    height: 130px;
-  }
-  .bubble i {
-    font-size: 2rem;
-  }
-  .bubble span {
-    font-size: 0.875rem;
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
   }
 }

@@ -1,0 +1,153 @@
+/*
+ * Stylesheet for the Picklist Analyzer tool.
+ * Extends the main style.css with tool-specific layouts.
+ */
+
+/* Main layout for the analyzer page */
+main.analyzer {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Glass card styling for sections */
+.glass-card {
+  background: rgba(20, 37, 58, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  padding: 2.5rem;
+  color: var(--primary-text);
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.glass-card h2,
+.glass-card h3 {
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-text);
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 0.75rem;
+}
+
+/* The new, "sexy" file upload button */
+.file-upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0d1b2a;
+  background: var(--accent-orange);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.2);
+}
+
+.file-upload-label:hover {
+  background: #e68a00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 153, 0, 0.3);
+}
+
+.file-upload-label i {
+  font-size: 1.2rem;
+}
+
+/* Text that displays the selected file's name */
+.file-name {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #8492a6;
+  min-height: 1.2em; /* Prevents layout shift */
+}
+
+.note {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #8492a6;
+  max-width: 500px;
+}
+
+/* Modern table styling */
+#table-container {
+    overflow-x: auto; /* For responsive tables on small screens */
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: rgba(13, 27, 42, 0.5); /* Semi-transparent table background */
+}
+
+.results-table th,
+.results-table td {
+  border: 1px solid var(--card-border);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  color: var(--primary-text);
+}
+
+.results-table th {
+  background-color: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+.results-table tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.results-table tr:hover {
+    background-color: rgba(255, 153, 0, 0.1);
+}
+
+/* Modern Download Button */
+#download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0d1b2a;
+  background: var(--accent-orange);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.2);
+}
+
+#download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+#download-btn:hover:not(:disabled) {
+  background: #e68a00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 153, 0, 0.3);
+}

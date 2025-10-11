@@ -5,110 +5,77 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Picklist Analyzer</title>
-    <!-- Reuse the main site’s styles -->
     <link rel="stylesheet" href="style.css" />
-    <!-- Additional styles specific to this page -->
-    <style>
-      main.analyzer {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem 1rem 4rem;
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
-      .upload-section,
-      #results-section {
-        background: #112240;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-        padding: 2rem;
-        color: #f5f6fa;
-      }
-      .upload-section h2,
-      #results-section h3 {
-        margin-bottom: 1rem;
-        color: #f5f6fa;
-      }
-      .upload-section input[type="file"] {
-        display: block;
-        margin-top: 1rem;
-        font-size: 1rem;
-        color: #f5f6fa;
-      }
-      .upload-section .note {
-        margin-top: 0.5rem;
-        font-size: 0.9rem;
-        color: #8492a6;
-      }
-      /* Table styling */
-      .results-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-      }
-      .results-table th,
-      .results-table td {
-        border: 1px solid #1f3b59;
-        padding: 0.5rem 0.75rem;
-        text-align: left;
-        color: #f5f6fa;
-      }
-      .results-table th {
-        background-color: #1b3b59;
-        font-weight: 600;
-      }
-      .results-table tr:nth-child(even) {
-        background-color: #132c49;
-      }
-      #download-btn {
-        margin-top: 1rem;
-        padding: 0.6rem 1.2rem;
-        font-size: 1rem;
-        font-weight: 500;
-        color: #0d1b2a;
-        background: #ff9900;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-      #download-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      #download-btn:hover:not(:disabled) {
-        background: #e68a00;
-      }
-    </style>
-    <!-- SheetJS (xlsx library) for reading and writing Excel files -->
+    <link rel="stylesheet" href="analyzer_style.css" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
   </head>
   <body>
     <header>
       <h1>Picklist Analyzer</h1>
-      <p>Upload your picklist file to generate associate performance summaries</p>
+      <p>Upload your data file to generate an instant performance summary.</p>
     </header>
+
     <main class="analyzer">
-      <section class="upload-section">
-        <h2>Upload Picklist File</h2>
-        <input type="file" id="file-input" accept=".csv, .xls, .xlsx" />
+      <section class="glass-card upload-section">
+        <h2>1. Upload Picklist File</h2>
+        
+        <label for="file-input" class="file-upload-label">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Choose File</span>
+        </label>
+        
+        <input type="file" id="file-input" accept=".csv, .xls, .xlsx" style="display: none;" />
+        
+        <p id="file-name-display" class="file-name">No file selected</p>
         <p class="note">
-          Accepted formats: CSV or Excel. Data remains private and is processed in
-          your browser.
+          Your data is processed entirely in your browser. Nothing is uploaded to a server.
         </p>
       </section>
-      <section id="results-section" style="display: none;">
-        <h3>Summary Results</h3>
-        <div id="table-container"></div>
-        <button id="download-btn" disabled>Download Summary as Excel</button>
+
+      <section id="results-section" class="glass-card" style="display: none;">
+        <h3>2. Summary Results</h3>
+        <div id="table-container">
+          </div>
+        <button id="download-btn" disabled>
+          <i class="fa-solid fa-download"></i>
+          Download Summary
+        </button>
       </section>
     </main>
+
     <footer>
       <p>
-        Copyright 2025 Karim Elbeih Project Collection I Built with love
+        &copy; <span id="year">2025</span> Projects Collection | Built with love
       </p>
     </footer>
+
     <script src="data_tool.js"></script>
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Update footer year
+        const yearSpan = document.getElementById('year');
+        if (yearSpan) {
+          yearSpan.textContent = new Date().getFullYear();
+        }
+        
+        // Update the file name display when a file is chosen
+        const fileInput = document.getElementById('file-input');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        fileInput.addEventListener('change', () => {
+          if (fileInput.files.length > 0) {
+            fileNameDisplay.textContent = `Selected: ${fileInput.files[0].name}`;
+            fileNameDisplay.style.color = '#f5f6fa';
+          } else {
+            fileNameDisplay.textContent = 'No file selected';
+            fileNameDisplay.style.color = '#8492a6';
+          }
+        });
+      });
+    </script>
   </body>
 </html>
