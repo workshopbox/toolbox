@@ -19,25 +19,27 @@
       }
       .upload-section,
       #results-section {
-        background: #fff;
+        background: #112240;
         border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         padding: 2rem;
+        color: #f5f6fa;
       }
       .upload-section h2,
       #results-section h3 {
         margin-bottom: 1rem;
-        color: #333;
+        color: #f5f6fa;
       }
       .upload-section input[type="file"] {
         display: block;
         margin-top: 1rem;
         font-size: 1rem;
+        color: #f5f6fa;
       }
       .upload-section .note {
         margin-top: 0.5rem;
         font-size: 0.9rem;
-        color: #666;
+        color: #8492a6;
       }
       /* Table styling */
       .results-table {
@@ -47,35 +49,36 @@
       }
       .results-table th,
       .results-table td {
-        border: 1px solid #e0e0e0;
+        border: 1px solid #1f3b59;
         padding: 0.5rem 0.75rem;
         text-align: left;
+        color: #f5f6fa;
       }
       .results-table th {
-        background-color: #f5f7fb;
+        background-color: #1b3b59;
         font-weight: 600;
       }
       .results-table tr:nth-child(even) {
-        background-color: #fafafa;
+        background-color: #132c49;
       }
       #download-btn {
         margin-top: 1rem;
         padding: 0.6rem 1.2rem;
         font-size: 1rem;
         font-weight: 500;
-        color: #fff;
-        background: linear-gradient(145deg, #146eb4 0%, #3fa2e3 50%, #ff9900 100%);
+        color: #0d1b2a;
+        background: #ff9900;
         border: none;
         border-radius: 6px;
         cursor: pointer;
         transition: background 0.3s ease;
       }
       #download-btn:disabled {
-        opacity: 0.6;
+        opacity: 0.5;
         cursor: not-allowed;
       }
       #download-btn:hover:not(:disabled) {
-        background: linear-gradient(145deg, #ff9900 0%, #ffb84d 50%, #146eb4 100%);
+        background: #e68a00;
       }
     </style>
     <!-- SheetJS (xlsx library) for reading and writing Excel files -->

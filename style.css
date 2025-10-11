@@ -18,16 +18,18 @@ html,
 body {
   height: 100%;
   font-family: 'Poppins', sans-serif;
-  background: #f7f9fb;
-  color: #333;
+  /* Dark theme background and light text similar to the Amazon Wave Check site */
+  background: #0d1b2a;
+  color: #f5f6fa;
   line-height: 1.6;
 }
 
 header {
   text-align: center;
   padding: 4rem 1rem 3rem;
-  background: linear-gradient(135deg, #ff9900 0%, #ffb84d 50%, #146eb4 100%);
-  color: #fff;
+  /* Use a dark gradient for the header to match the reference site */
+  background: linear-gradient(135deg, #102f45 0%, #112240 50%, #0d1b2a 100%);
+  color: #f5f6fa;
   position: relative;
   overflow: hidden;
 }
@@ -47,7 +49,8 @@ header::before {
   height: 600px;
   top: -300px;
   left: -300px;
-  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0) 70%);
+  /* Subtle radial glow using Amazon orange for accents */
+  background: radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, rgba(255, 153, 0, 0) 70%);
 }
 
 header::after {
@@ -55,19 +58,22 @@ header::after {
   height: 400px;
   bottom: -200px;
   right: -200px;
-  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0) 70%);
+  /* Second radial accent */
+  background: radial-gradient(circle, rgba(255, 153, 0, 0.3) 0%, rgba(255, 153, 0, 0) 70%);
 }
 
 header h1 {
   font-size: 2.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: #f5f6fa;
 }
 
 header p {
   font-size: 1.125rem;
   font-weight: 300;
-  opacity: 0.9;
+  opacity: 0.8;
+  color: #cbd5e1;
 }
 
 main {
@@ -94,35 +100,39 @@ main {
   width: 170px;
   height: 170px;
   border-radius: 50%;
-  color: #fff;
+  color: #f5f6fa;
   text-decoration: none;
   position: relative;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Icon styling inside bubbles */
 .bubble .icon {
   width: 48px;
   height: 48px;
-  stroke: #ffffff;
+  /* Use Amazon orange for icon strokes on dark background */
+  stroke: #ff9900;
   fill: none;
   margin-bottom: 0.5rem;
 }
 
 /* Gradient backgrounds for bubbles: use orange and blue offset for dynamic look */
 .bubble:nth-child(odd) {
-  background: linear-gradient(145deg, #ff9900 0%, #ffb84d 50%, #146eb4 100%);
+  /* Dark-themed gradient for odd bubbles */
+  background: linear-gradient(145deg, #102f45 0%, #1b3b59 50%, #23496e 100%);
 }
 
 .bubble:nth-child(even) {
-  background: linear-gradient(145deg, #146eb4 0%, #3fa2e3 50%, #ff9900 100%);
+  /* Dark-themed gradient for even bubbles */
+  background: linear-gradient(145deg, #23496e 0%, #1b3b59 50%, #102f45 100%);
 }
 
 .bubble i {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
+  color: #ff9900;
 }
 
 .bubble span {
@@ -130,20 +140,21 @@ main {
   font-weight: 500;
   text-align: center;
   padding: 0 0.5rem;
+  color: #f5f6fa;
 }
 
 /* Hover effect: enlarge slightly and intensify shadow */
 .bubble:hover {
   transform: scale(1.05);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
 }
 
 /* Footer styling */
 footer {
   text-align: center;
   padding: 2rem 1rem;
-  background-color: #fafafa;
-  color: #666;
+  background-color: #0d1b2a;
+  color: #8492a6;
   font-size: 0.875rem;
 }
 
