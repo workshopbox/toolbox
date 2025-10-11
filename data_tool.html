@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Picklist Analyzer</title>
+    <!-- Reuse the main site’s styles -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- Additional styles specific to this page -->
+    <style>
+      main.analyzer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .upload-section,
+      #results-section {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+      }
+      .upload-section h2,
+      #results-section h3 {
+        margin-bottom: 1rem;
+        color: #333;
+      }
+      .upload-section input[type="file"] {
+        display: block;
+        margin-top: 1rem;
+        font-size: 1rem;
+      }
+      .upload-section .note {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: #666;
+      }
+      /* Table styling */
+      .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+      .results-table th,
+      .results-table td {
+        border: 1px solid #e0e0e0;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+      }
+      .results-table th {
+        background-color: #f5f7fb;
+        font-weight: 600;
+      }
+      .results-table tr:nth-child(even) {
+        background-color: #fafafa;
+      }
+      #download-btn {
+        margin-top: 1rem;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #fff;
+        background: linear-gradient(145deg, #146eb4 0%, #3fa2e3 50%, #ff9900 100%);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      #download-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      #download-btn:hover:not(:disabled) {
+        background: linear-gradient(145deg, #ff9900 0%, #ffb84d 50%, #146eb4 100%);
+      }
+    </style>
+    <!-- SheetJS (xlsx library) for reading and writing Excel files -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Picklist Analyzer</h1>
+      <p>Upload your picklist file to generate associate performance summaries</p>
+    </header>
+    <main class="analyzer">
+      <section class="upload-section">
+        <h2>Upload Picklist File</h2>
+        <input type="file" id="file-input" accept=".csv, .xls, .xlsx" />
+        <p class="note">
+          Accepted formats: CSV or Excel. Data remains private and is processed in
+          your browser.
+        </p>
+      </section>
+      <section id="results-section" style="display: none;">
+        <h3>Summary Results</h3>
+        <div id="table-container"></div>
+        <button id="download-btn" disabled>Download Summary as Excel</button>
+      </section>
+    </main>
+    <footer>
+      <p>
+        Copyright 2025 Karim Elbeih Project Collection I Built with love
+      </p>
+    </footer>
+    <script src="data_tool.js"></script>
+  </body>
+</html>

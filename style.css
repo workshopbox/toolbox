@@ -1,0 +1,167 @@
+/*
+ * Style sheet for the Projects Collection site
+ *
+ * The design is inspired by Amazon's primary orange (#FF9900) and a
+ * complementary blue (#146EB4). Bubble-like buttons link out to
+ * individual tools. Modern typography and layout make the site
+ * friendly on both desktop and mobile devices.
+ */
+
+/* Reset/normalize some default styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  background: #f7f9fb;
+  color: #333;
+  line-height: 1.6;
+}
+
+header {
+  text-align: center;
+  padding: 4rem 1rem 3rem;
+  background: linear-gradient(135deg, #ff9900 0%, #ffb84d 50%, #146eb4 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative circles in the header for a playful, modern look */
+header::before,
+header::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+header::before {
+  width: 600px;
+  height: 600px;
+  top: -300px;
+  left: -300px;
+  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+header::after {
+  width: 400px;
+  height: 400px;
+  bottom: -200px;
+  right: -200px;
+  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+header h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  font-size: 1.125rem;
+  font-weight: 300;
+  opacity: 0.9;
+}
+
+main {
+  max-width: 1200px;
+  margin: -2rem auto 0;
+  padding: 0 1rem 4rem;
+}
+
+/* Container for bubbles */
+.bubble-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  padding-top: 4rem;
+}
+
+/* Styles for each bubble link */
+.bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  color: #fff;
+  text-decoration: none;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon styling inside bubbles */
+.bubble .icon {
+  width: 48px;
+  height: 48px;
+  stroke: #ffffff;
+  fill: none;
+  margin-bottom: 0.5rem;
+}
+
+/* Gradient backgrounds for bubbles: use orange and blue offset for dynamic look */
+.bubble:nth-child(odd) {
+  background: linear-gradient(145deg, #ff9900 0%, #ffb84d 50%, #146eb4 100%);
+}
+
+.bubble:nth-child(even) {
+  background: linear-gradient(145deg, #146eb4 0%, #3fa2e3 50%, #ff9900 100%);
+}
+
+.bubble i {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.bubble span {
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+/* Hover effect: enlarge slightly and intensify shadow */
+.bubble:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Footer styling */
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  background-color: #fafafa;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2rem;
+  }
+  header p {
+    font-size: 1rem;
+  }
+  .bubble {
+    width: 130px;
+    height: 130px;
+  }
+  .bubble i {
+    font-size: 2rem;
+  }
+  .bubble span {
+    font-size: 0.875rem;
+  }
+}
