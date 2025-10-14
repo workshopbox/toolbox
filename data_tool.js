@@ -42,7 +42,6 @@ function handleFile(event) {
     const data = evt.target.result;
     let workbook;
     try {
-      // Try to read as binary string for broad format support
       workbook = XLSX.read(data, { type: 'binary' });
     } catch (err) {
       console.error('Error reading file', err);
@@ -51,13 +50,13 @@ function handleFile(event) {
     }
     const firstSheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[firstSheetName];
-    // Convert to JSON; defval '' ensures empty cells are empty strings
     const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
     if (!rows || rows.length === 0) {
       alert('The file appears to be empty.');
       return;
     }
-    // Determine the relevant column names by case-insensitive match
+
+    // --- MODIFIED LOGIC: Find all required columns ---
     const headerRow = Object.keys(rows[0]);
     let assocCol = null;
     let durationCol = null;
@@ -66,69 +65,88 @@ function handleFile(event) {
       const clean = col.trim().toLowerCase();
       if (!assocCol && clean.includes('associate')) assocCol = col;
       if (!durationCol && clean.includes('duration')) durationCol = col;
+      // Find the picklist code column, which is the key to uniqueness
       if (!picklistCol && clean.includes('picklist') && clean.includes('code')) picklistCol = col;
     });
-    if (!assocCol || !durationCol) {
-      alert('The uploaded file does not contain the required columns (Associate and Duration).');
+
+    if (!assocCol || !durationCol || !picklistCol) {
+      alert('The uploaded file does not contain the required columns (Associate, Duration, and Picklist Code).');
       return;
     }
-    // Aggregate data
+
+    // --- REWRITTEN LOGIC: Aggregate data by unique picklist ---
     const summary = {};
     rows.forEach((row) => {
-      const assocField = row[assocCol] || '';
+      const assocName = (row[assocCol] || '').trim();
+      const picklistCode = row[picklistCol] || '';
       const durationStr = row[durationCol] || '';
-      const durationSeconds = parseDuration(durationStr);
-      // Split associates by comma and slash; remove whitespace
-      const names = assocField.split(',').map((n) => n.trim()).filter((n) => n);
-      names.forEach((name) => {
-        if (!summary[name]) summary[name] = { count: 0, sum: 0 };
-        summary[name].count += 1;
-        summary[name].sum += durationSeconds;
-      });
+
+      // Ignore rows with no associate name or picklist code
+      if (!assocName || !picklistCode) {
+        return;
+      }
+
+      // Initialize associate if they are not in the summary yet
+      if (!summary[assocName]) {
+        summary[assocName] = {
+          picklists: new Set(), // Use a Set to store unique picklist codes
+          totalDuration: 0,
+        };
+      }
+
+      // If this picklist has NOT been counted for this user yet, add it
+      if (!summary[assocName].picklists.has(picklistCode)) {
+        summary[assocName].picklists.add(picklistCode);
+        summary[assocName].totalDuration += parseDuration(durationStr);
+      }
     });
 
-    // --- NEW: Calculate totals ---
+    // --- MODIFIED LOGIC: Convert summary into a displayable array ---
+    const resultData = Object.entries(summary).map(([name, info]) => {
+      const pickCount = info.picklists.size;
+      const avgSec = pickCount > 0 ? info.totalDuration / pickCount : 0;
+      return {
+        Associate: name,
+        'Number of Picklists': pickCount,
+        'Average Duration': formatDuration(avgSec),
+      };
+    });
+
+    // Sort by number of picklists descending
+    resultData.sort((a, b) => b['Number of Picklists'] - a['Number of Picklists']);
+
+    // Calculate totals
     let totalPicks = 0;
     let totalSeconds = 0;
-    Object.values(summary).forEach(info => {
-        totalPicks += info.count;
-        totalSeconds += info.sum;
+    resultData.forEach(item => {
+        totalPicks += item['Number of Picklists'];
+        // We need to get the original total duration back for an accurate overall average
+        const originalInfo = summary[item.Associate];
+        if(originalInfo) {
+            totalSeconds += originalInfo.totalDuration;
+        }
     });
     const overallAvgSec = totalPicks > 0 ? totalSeconds / totalPicks : 0;
     const overallAvgFormatted = formatDuration(overallAvgSec);
 
-
-    // Convert summary object into an array and compute averages
-    const resultData = Object.entries(summary).map(([name, info]) => {
-      const avgSec = info.sum / info.count || 0;
-      return {
-        Associate: name,
-        'Number of Picklists': info.count,
-        'Average Duration': formatDuration(avgSec),
-      };
-    });
-    // Sort by number of picklists descending
-    resultData.sort((a, b) => b['Number of Picklists'] - a['Number of Picklists']);
-    
-    // --- UPDATED: Render table with totals ---
+    // Render table
     renderTable(resultData, totalPicks, overallAvgFormatted);
 
-    // --- UPDATED: Prepare data for Excel download with total row ---
+    // Prepare data for Excel download
     const dataForExcel = [...resultData];
     dataForExcel.push({
       'Associate': 'TOTAL',
       'Number of Picklists': totalPicks,
-      'Average Duration': overallAvgFormatted
+      'Average Duration': overallAvgFormatted,
     });
     
     // Enable download button
     const downloadBtn = document.getElementById('download-btn');
     downloadBtn.disabled = false;
     downloadBtn.onclick = function () {
-      downloadExcel(dataForExcel); // Use data with the total row
+      downloadExcel(dataForExcel);
     };
   };
-  // Read file as binary string to support both CSV and XLSX
   reader.readAsBinaryString(file);
 }
 
@@ -141,7 +159,6 @@ function handleFile(event) {
 function renderTable(data, totalPicks, overallAvg) {
   const resultsSection = document.getElementById('results-section');
   const container = document.getElementById('table-container');
-  // Clear previous results
   container.innerHTML = '';
   if (!data || data.length === 0) {
     container.innerHTML = '<p>No data to display.</p>';
@@ -172,17 +189,14 @@ function renderTable(data, totalPicks, overallAvg) {
   });
   table.appendChild(tbody);
 
-  // --- NEW: Add table footer with totals ---
   const tfoot = document.createElement('tfoot');
   const footerRow = document.createElement('tr');
-  footerRow.style.fontWeight = 'bold'; // Make the whole row bold
+  footerRow.style.fontWeight = 'bold';
 
   const totalCellLabel = document.createElement('td');
   totalCellLabel.textContent = 'Total';
-  
   const totalCellPicks = document.createElement('td');
   totalCellPicks.textContent = totalPicks;
-
   const totalCellAvg = document.createElement('td');
   totalCellAvg.textContent = overallAvg;
 
@@ -191,7 +205,6 @@ function renderTable(data, totalPicks, overallAvg) {
   footerRow.appendChild(totalCellAvg);
   tfoot.appendChild(footerRow);
   table.appendChild(tfoot);
-
 
   container.appendChild(table);
   resultsSection.style.display = 'block';
@@ -205,10 +218,8 @@ function downloadExcel(data) {
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Summary');
-  // Apply header names explicitly to preserve ordering
   const header = Object.keys(data[0]);
   XLSX.utils.sheet_add_aoa(ws, [header], { origin: 'A1' });
-  // Adjust column widths based on header length and data
   const colWidths = header.map((col) => {
     const maxLen = Math.max(
       col.length,
@@ -219,9 +230,3 @@ function downloadExcel(data) {
   ws['!cols'] = colWidths;
   XLSX.writeFile(wb, 'picklist_summary.xlsx');
 }
-
-// Attach event listener to file input on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-  const fileInput = document.getElementById('file-input');
-  fileInput.addEventListener('change', handleFile);
-});

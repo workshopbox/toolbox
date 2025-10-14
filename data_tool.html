@@ -63,14 +63,21 @@
           yearSpan.textContent = new Date().getFullYear();
         }
         
-        // Update the file name display when a file is chosen
+        // --- UPDATED SCRIPT ---
+        // Consolidate all 'change' event logic into this single listener
         const fileInput = document.getElementById('file-input');
         const fileNameDisplay = document.getElementById('file-name-display');
-        fileInput.addEventListener('change', () => {
+        
+        fileInput.addEventListener('change', (event) => { // The 'event' object is important
           if (fileInput.files.length > 0) {
+            // 1. Update the display text
             fileNameDisplay.textContent = `Selected: ${fileInput.files[0].name}`;
             fileNameDisplay.style.color = '#f5f6fa';
+            
+            // 2. Call the processing function from data_tool.js
+            handleFile(event); 
           } else {
+            // Reset if no file is chosen
             fileNameDisplay.textContent = 'No file selected';
             fileNameDisplay.style.color = '#8492a6';
           }
