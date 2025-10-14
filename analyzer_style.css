@@ -46,7 +46,7 @@ main.analyzer {
   padding-bottom: 0.75rem;
 }
 
-/* The new, "sexy" file upload button */
+/* The "sexy" file upload button */
 .file-upload-label {
   display: inline-flex;
   align-items: center;
@@ -79,13 +79,6 @@ main.analyzer {
   font-size: 0.9rem;
   color: #8492a6;
   min-height: 1.2em; /* Prevents layout shift */
-}
-
-.note {
-  margin-top: 1.5rem;
-  font-size: 0.9rem;
-  color: #8492a6;
-  max-width: 500px;
 }
 
 /* Modern table styling */
@@ -121,33 +114,68 @@ main.analyzer {
     background-color: rgba(255, 153, 0, 0.1);
 }
 
-/* Modern Download Button */
-#download-btn {
+/* --- BUTTON STYLES --- */
+
+/* Base style for all buttons in the results section */
+#results-section button {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-top: 1.5rem;
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
-  color: #0d1b2a;
-  background: var(--accent-orange);
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.2);
 }
 
-#download-btn:disabled {
+#results-section button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
+#results-section button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+/* Primary Orange Button (Download) */
+#download-btn {
+  color: #0d1b2a;
+  background: var(--accent-orange);
+  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.2);
+}
+
 #download-btn:hover:not(:disabled) {
   background: #e68a00;
-  transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 153, 0, 0.3);
+}
+
+/* Primary Blue Button (Toggle View) */
+#toggle-view-btn {
+  color: var(--primary-text);
+  background: var(--accent-blue);
+  box-shadow: 0 4px 15px rgba(20, 110, 180, 0.2);
+  margin-left: 0.5rem;
+}
+
+#toggle-view-btn:hover:not(:disabled) {
+  background: #105a96;
+  box-shadow: 0 6px 20px rgba(20, 110, 180, 0.3);
+}
+
+/* Secondary Gray Button (Clear Data) */
+.secondary-btn {
+    color: var(--primary-text);
+    background: #4A5568; /* A neutral, dark gray */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin-left: 0.5rem;
+}
+
+.secondary-btn:hover:not(:disabled) {
+    background: #2D3748; /* A darker gray for hover */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
