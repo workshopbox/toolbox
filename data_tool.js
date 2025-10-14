@@ -86,6 +86,18 @@ function handleFile(event) {
         summary[name].sum += durationSeconds;
       });
     });
+
+    // --- NEW: Calculate totals ---
+    let totalPicks = 0;
+    let totalSeconds = 0;
+    Object.values(summary).forEach(info => {
+        totalPicks += info.count;
+        totalSeconds += info.sum;
+    });
+    const overallAvgSec = totalPicks > 0 ? totalSeconds / totalPicks : 0;
+    const overallAvgFormatted = formatDuration(overallAvgSec);
+
+
     // Convert summary object into an array and compute averages
     const resultData = Object.entries(summary).map(([name, info]) => {
       const avgSec = info.sum / info.count || 0;
@@ -97,13 +109,23 @@ function handleFile(event) {
     });
     // Sort by number of picklists descending
     resultData.sort((a, b) => b['Number of Picklists'] - a['Number of Picklists']);
-    // Render table
-    renderTable(resultData);
+    
+    // --- UPDATED: Render table with totals ---
+    renderTable(resultData, totalPicks, overallAvgFormatted);
+
+    // --- UPDATED: Prepare data for Excel download with total row ---
+    const dataForExcel = [...resultData];
+    dataForExcel.push({
+      'Associate': 'TOTAL',
+      'Number of Picklists': totalPicks,
+      'Average Duration': overallAvgFormatted
+    });
+    
     // Enable download button
     const downloadBtn = document.getElementById('download-btn');
     downloadBtn.disabled = false;
     downloadBtn.onclick = function () {
-      downloadExcel(resultData);
+      downloadExcel(dataForExcel); // Use data with the total row
     };
   };
   // Read file as binary string to support both CSV and XLSX
@@ -112,9 +134,11 @@ function handleFile(event) {
 
 /**
  * Render result data into a table in the DOM.
- * @param {Array<Object>} data
+ * @param {Array<Object>} data The main result data.
+ * @param {number} totalPicks The calculated total pick count.
+ * @param {string} overallAvg The formatted overall average duration.
  */
-function renderTable(data) {
+function renderTable(data, totalPicks, overallAvg) {
   const resultsSection = document.getElementById('results-section');
   const container = document.getElementById('table-container');
   // Clear previous results
@@ -135,6 +159,7 @@ function renderTable(data) {
   });
   thead.appendChild(headerRow);
   table.appendChild(thead);
+
   const tbody = document.createElement('tbody');
   data.forEach((row) => {
     const tr = document.createElement('tr');
@@ -146,6 +171,28 @@ function renderTable(data) {
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
+
+  // --- NEW: Add table footer with totals ---
+  const tfoot = document.createElement('tfoot');
+  const footerRow = document.createElement('tr');
+  footerRow.style.fontWeight = 'bold'; // Make the whole row bold
+
+  const totalCellLabel = document.createElement('td');
+  totalCellLabel.textContent = 'Total';
+  
+  const totalCellPicks = document.createElement('td');
+  totalCellPicks.textContent = totalPicks;
+
+  const totalCellAvg = document.createElement('td');
+  totalCellAvg.textContent = overallAvg;
+
+  footerRow.appendChild(totalCellLabel);
+  footerRow.appendChild(totalCellPicks);
+  footerRow.appendChild(totalCellAvg);
+  tfoot.appendChild(footerRow);
+  table.appendChild(tfoot);
+
+
   container.appendChild(table);
   resultsSection.style.display = 'block';
 }
