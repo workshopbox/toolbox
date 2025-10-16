@@ -37,8 +37,44 @@ main.analyzer {
   }
 }
 
-.glass-card h2,
-.glass-card h3 {
+/* Toolbar for title and calendar */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allows wrapping on small screens */
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.toolbar h3 {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Style for the calendar input box */
+#date-picker {
+    background: rgba(13, 27, 42, 0.5);
+    border: 1px solid var(--card-border);
+    color: var(--primary-text);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: center;
+    width: 170px;
+}
+
+#date-picker:hover {
+    border-color: var(--accent-orange);
+}
+
+
+.glass-card h2 {
   margin-bottom: 1.5rem;
   font-weight: 600;
   color: var(--primary-text);
@@ -46,7 +82,7 @@ main.analyzer {
   padding-bottom: 0.75rem;
 }
 
-/* The "sexy" file upload button */
+/* File upload button */
 .file-upload-label {
   display: inline-flex;
   align-items: center;
@@ -69,10 +105,6 @@ main.analyzer {
   box-shadow: 0 6px 20px rgba(255, 153, 0, 0.3);
 }
 
-.file-upload-label i {
-  font-size: 1.2rem;
-}
-
 /* Text that displays the selected file's name */
 .file-name {
   margin-top: 1rem;
@@ -81,16 +113,16 @@ main.analyzer {
   min-height: 1.2em; /* Prevents layout shift */
 }
 
-/* Modern table styling */
+/* Table styling */
 #table-container {
-    overflow-x: auto; /* For responsive tables on small screens */
+    overflow-x: auto;
 }
 
 .results-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
-  background: rgba(13, 27, 42, 0.5); /* Semi-transparent table background */
+  background: rgba(13, 27, 42, 0.5);
 }
 
 .results-table th,
@@ -115,13 +147,17 @@ main.analyzer {
 }
 
 /* --- BUTTON STYLES --- */
+.button-group {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    gap: 0.75rem;
+}
 
-/* Base style for all buttons in the results section */
-#results-section button {
+.button-group button {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 1.5rem;
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
@@ -131,51 +167,39 @@ main.analyzer {
   transition: all 0.3s ease;
 }
 
-#results-section button:disabled {
+.button-group button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-#results-section button:hover:not(:disabled) {
+.button-group button:hover:not(:disabled) {
   transform: translateY(-2px);
 }
 
-/* Primary Orange Button (Download) */
-#download-btn {
+/* Primary Orange Buttons (Download Day/Week/Month) */
+#download-day-btn, #download-week-btn, #download-month-btn {
   color: #0d1b2a;
   background: var(--accent-orange);
   box-shadow: 0 4px 15px rgba(255, 153, 0, 0.2);
 }
 
-#download-btn:hover:not(:disabled) {
+#download-day-btn:hover:not(:disabled),
+#download-week-btn:hover:not(:disabled),
+#download-month-btn:hover:not(:disabled) {
   background: #e68a00;
   box-shadow: 0 6px 20px rgba(255, 153, 0, 0.3);
-}
-
-/* Primary Blue Button (Toggle View) */
-#toggle-view-btn {
-  color: var(--primary-text);
-  background: var(--accent-blue);
-  box-shadow: 0 4px 15px rgba(20, 110, 180, 0.2);
-  margin-left: 0.5rem;
-}
-
-#toggle-view-btn:hover:not(:disabled) {
-  background: #105a96;
-  box-shadow: 0 6px 20px rgba(20, 110, 180, 0.3);
 }
 
 /* Secondary Gray Button (Clear Data) */
 .secondary-btn {
     color: var(--primary-text);
-    background: #4A5568; /* A neutral, dark gray */
+    background: #4A5568;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    margin-left: 0.5rem;
 }
 
 .secondary-btn:hover:not(:disabled) {
-    background: #2D3748; /* A darker gray for hover */
+    background: #2D3748;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }

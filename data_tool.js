@@ -2,7 +2,7 @@
 
 // Import the functions you need from the SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -21,25 +21,22 @@ const db = getFirestore(app);
 // --- END: Firebase Initialization ---
 
 
-// --- STATE MANAGEMENT VARIABLES ---
-let currentView = 'weekly'; // Can be 'weekly' or 'lastUpload'
-let lastUploadData = null; // Stores the summary of the last uploaded file
-let weeklyData = null; // Stores the weekly summary from Firebase
+// --- STATE MANAGEMENT ---
+let selectedDate = new Date(); // Store as a Date object
+let calendarInstance = null;
 
 
 /**
- * Calculates a unique ID for the current week (e.g., "2025-W42").
- * @returns {string} The week ID.
+ * Formats a Date object into a YYYY-MM-DD string for use as a Firestore document ID.
+ * @param {Date} date - The date to format.
+ * @returns {string} The formatted date string.
  */
-function getWeekId() {
-  const now = new Date();
-  const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
-  const pastDaysOfYear = (now - firstDayOfYear) / 86400000;
-  const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-  return `${now.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+function formatDateForId(date) {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
-
-const WEEK_ID = getWeekId();
 
 /**
  * Parses a duration string (HH:MM:SS) into total seconds.
@@ -63,22 +60,28 @@ function formatDuration(seconds) {
 }
 
 /**
- * Universal function to render any summary data into the table.
- * @param {Object} dataToDisplay - The summary object to render.
- * @param {string} title - The title to display above the table.
+ * Renders the summary data into the table in the DOM.
+ * @param {Object} dailyData - The summary data for a given day.
  */
-function renderTable(dataToDisplay, title) {
+function renderTable(dailyData) {
   const container = document.getElementById('table-container');
   const summaryTitle = document.getElementById('summary-title');
+  const downloadBtn = document.getElementById('download-day-btn');
+  const clearBtn = document.getElementById('clear-btn');
   container.innerHTML = '';
-  summaryTitle.innerHTML = title;
 
-  if (!dataToDisplay || !dataToDisplay.summary || dataToDisplay.summary.length === 0) {
-    container.innerHTML = '<p>No data to display.</p>';
+  const selectedDateId = formatDateForId(selectedDate);
+  const todayId = formatDateForId(new Date());
+  summaryTitle.textContent = selectedDateId === todayId ? `Summary for Today (${selectedDateId})` : `Summary for ${selectedDateId}`;
+
+  if (!dailyData || !dailyData.summary || dailyData.summary.length === 0) {
+    container.innerHTML = '<p>No data uploaded for this day yet.</p>';
+    downloadBtn.disabled = true;
+    clearBtn.disabled = true;
     return;
   }
 
-  const { summary, totalPicklists, overallAverageDuration } = dataToDisplay;
+  const { summary, totalPicklists, overallAverageDuration } = dailyData;
   summary.sort((a, b) => b['Number of Picklists'] - a['Number of Picklists']);
 
   const table = document.createElement('table');
@@ -107,35 +110,27 @@ function renderTable(dataToDisplay, title) {
   footerRow.insertCell().textContent = overallAverageDuration;
   
   container.appendChild(table);
+  downloadBtn.disabled = false;
+  clearBtn.disabled = false;
 }
 
 /**
- * Fetches the current week's data from Firebase and updates the UI.
+ * Fetches data for the currently selected date from Firebase and displays it.
  */
-async function loadWeeklyData() {
-  const docRef = doc(db, "weeklySummaries", WEEK_ID);
-  const downloadBtn = document.getElementById('download-btn');
-  const clearBtn = document.getElementById('clear-btn');
+async function loadDailyData() {
+  const dateId = formatDateForId(selectedDate);
+  const docRef = doc(db, "dailySummaries", dateId);
   try {
     const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      weeklyData = docSnap.data();
-      downloadBtn.disabled = false;
-      clearBtn.disabled = false;
-    } else {
-      weeklyData = null;
-      downloadBtn.disabled = true;
-      clearBtn.disabled = true;
-    }
-    renderTable(weeklyData, `This Week's Combined Summary (${WEEK_ID})`);
+    renderTable(docSnap.exists() ? docSnap.data() : null);
   } catch (error) {
-    console.error("Error loading weekly data:", error);
-    alert("Could not load weekly data. Check Firestore rules.");
+    console.error("Error loading data:", error);
+    alert("Could not load data from the database. Check Firestore rules.");
   }
 }
 
 /**
- * Main function to process an uploaded file.
+ * Processes an uploaded file, merges its data with the selected day's data, and saves it.
  */
 async function handleFileUpload(event) {
   const file = event.target.files[0];
@@ -165,54 +160,28 @@ async function handleFileUpload(event) {
       throw new Error("File must contain 'Associate', 'Duration', and 'Picklist Code' columns.");
     }
     
-    // *** FIX #1 STARTS HERE ***
-    // This map now accurately stores each picklist and its specific duration.
-    const dailySummaryMap = {};
+    const newFileData = {};
     rows.forEach(row => {
         const assocName = (row[assocCol] || '').trim();
         const picklistCode = (row[picklistCol] || '').toString().trim();
         if (!assocName || !picklistCode) return;
-        if (!dailySummaryMap[assocName]) {
-            dailySummaryMap[assocName] = { picklists: new Map() };
+        if (!newFileData[assocName]) {
+            newFileData[assocName] = { picklists: new Map() };
         }
-        if (!dailySummaryMap[assocName].picklists.has(picklistCode)) {
-            dailySummaryMap[assocName].picklists.set(picklistCode, parseDuration(row[durationCol]));
+        if (!newFileData[assocName].picklists.has(picklistCode)) {
+            newFileData[assocName].picklists.set(picklistCode, parseDuration(row[durationCol]));
         }
     });
 
-    let dailyTotalPicks = 0, dailyTotalSeconds = 0;
-    const dailySummaryArray = Object.entries(dailySummaryMap).map(([name, data]) => {
-        const pickCount = data.picklists.size;
-        const totalDuration = Array.from(data.picklists.values()).reduce((sum, sec) => sum + sec, 0);
-        dailyTotalPicks += pickCount;
-        dailyTotalSeconds += totalDuration;
-        return {
-            'Associate': name,
-            'Number of Picklists': pickCount,
-            'Average Duration': formatDuration(pickCount > 0 ? totalDuration / pickCount : 0),
-        };
-    });
-    // *** FIX #1 ENDS HERE ***
-
-    lastUploadData = {
-        summary: dailySummaryArray,
-        totalPicklists: dailyTotalPicks,
-        overallAverageDuration: formatDuration(dailyTotalPicks > 0 ? dailyTotalSeconds / dailyTotalPicks : 0)
-    };
-    
-    renderTable(lastUploadData, `Summary for: ${file.name}`);
-    currentView = 'lastUpload';
-    updateToggleBtn();
-
-    const docRef = doc(db, "weeklySummaries", WEEK_ID);
+    const dateId = formatDateForId(selectedDate);
+    const docRef = doc(db, "dailySummaries", dateId);
     const docSnap = await getDoc(docRef);
     const existingData = docSnap.data()?.associates ?? {};
 
-    Object.entries(dailySummaryMap).forEach(([name, data]) => {
+    Object.entries(newFileData).forEach(([name, data]) => {
         if (!existingData[name]) {
             existingData[name] = { totalDuration: 0, picklists: [] };
         }
-        // Accurately add durations for new picklists
         data.picklists.forEach((duration, picklistCode) => {
             if (!existingData[name].picklists.includes(picklistCode)) {
                 existingData[name].picklists.push(picklistCode);
@@ -221,10 +190,10 @@ async function handleFileUpload(event) {
         });
     });
 
-    let weeklyTotalPicks = 0, weeklyTotalSeconds = 0;
-    const weeklySummaryArray = Object.entries(existingData).map(([name, data]) => {
-        weeklyTotalPicks += data.picklists.length;
-        weeklyTotalSeconds += data.totalDuration;
+    let totalPicklists = 0, totalSeconds = 0;
+    const summaryArray = Object.entries(existingData).map(([name, data]) => {
+        totalPicklists += data.picklists.length;
+        totalSeconds += data.totalDuration;
         return {
             'Associate': name,
             'Number of Picklists': data.picklists.length,
@@ -232,22 +201,18 @@ async function handleFileUpload(event) {
         };
     });
     
-    const finalWeeklyReport = {
+    const finalDailyReport = {
         updatedAt: serverTimestamp(),
-        totalPicklists: weeklyTotalPicks,
-        overallAverageDuration: formatDuration(weeklyTotalPicks > 0 ? weeklyTotalSeconds / weeklyTotalPicks : 0),
-        summary: weeklySummaryArray,
+        totalPicklists: totalPicklists,
+        overallAverageDuration: formatDuration(totalPicklists > 0 ? totalSeconds / totalPicklists : 0),
+        summary: summaryArray,
         associates: existingData
     };
     
-    await setDoc(docRef, finalWeeklyReport);
-    console.log(`Weekly data for ${WEEK_ID} updated successfully.`);
+    await setDoc(docRef, finalDailyReport);
+    alert(`Successfully added data from ${file.name} to the summary for ${dateId}!`);
     
-    // *** FIX #2 ***
-    // Silently update our local copy of the weekly data without re-rendering the table
-    weeklyData = finalWeeklyReport;
-    document.getElementById('download-btn').disabled = false;
-    document.getElementById('clear-btn').disabled = false;
+    await loadDailyData();
 
   } catch (error) {
     console.error("File processing error:", error);
@@ -261,59 +226,125 @@ async function handleFileUpload(event) {
 }
 
 /**
- * Toggles the view between the last upload and the weekly summary.
+ * Deletes the selected day's data from Firebase after confirmation.
  */
-function toggleView() {
-    if (currentView === 'lastUpload') {
-        renderTable(weeklyData, `This Week's Combined Summary (${WEEK_ID})`);
-        currentView = 'weekly';
-    } else {
-        renderTable(lastUploadData, `Summary for Last Upload`);
-        currentView = 'lastUpload';
-    }
-    updateToggleBtn();
-}
-
-/**
- * Updates the text and icon of the toggle button based on the current view.
- */
-function updateToggleBtn() {
-    const toggleBtn = document.getElementById('toggle-view-btn');
-    const icon = toggleBtn.querySelector('i');
-    const text = toggleBtn.querySelector('span');
-    toggleBtn.disabled = !lastUploadData;
-
-    if (currentView === 'weekly') {
-        icon.className = 'fa-solid fa-file-arrow-down';
-        text.textContent = 'View Last Upload';
-    } else {
-        icon.className = 'fa-solid fa-calendar-week';
-        text.textContent = 'View Weekly Summary';
+async function clearDailyData() {
+    const dateId = formatDateForId(selectedDate);
+    if (confirm(`Are you sure you want to delete all data for ${dateId}? This cannot be undone.`)) {
+        await deleteDoc(doc(db, "dailySummaries", dateId));
+        alert(`Data for ${dateId} has been cleared.`);
+        await loadDailyData();
     }
 }
 
 /**
- * Deletes the current week's data from Firebase after confirmation.
+ * Downloads the summary for the currently displayed day.
  */
-async function clearWeeklyData() {
-    if (confirm("Are you sure you want to delete all data for this week? This action cannot be undone.")) {
-        await deleteDoc(doc(db, "weeklySummaries", WEEK_ID));
-        alert("This week's data has been cleared.");
-        lastUploadData = null;
-        await loadWeeklyData();
-        updateToggleBtn();
-    }
-}
+async function downloadDailySummary() {
+    const dateId = formatDateForId(selectedDate);
+    const docRef = doc(db, "dailySummaries", dateId);
+    const docSnap = await getDoc(docRef);
 
-/**
- * Triggers a download of the WEEKLY summary as an Excel file.
- */
-async function downloadWeeklySummary() {
-    if (!weeklyData) {
-        alert("No weekly data available to download.");
+    if (!docSnap.exists()) {
+        alert(`No data available for ${dateId} to download.`);
         return;
     }
-    const { summary, totalPicklists, overallAverageDuration } = weeklyData;
+
+    generateExcel(docSnap.data(), `summary_${dateId}`);
+}
+
+/**
+ * --- NEW FUNCTION ---
+ * Fetches and downloads a combined summary for a given date range (week or month).
+ * @param {'week' | 'month'} range - The period to download.
+ */
+async function downloadRangeSummary(range) {
+    // 1. Determine the start and end dates for the query
+    const today = selectedDate;
+    let startDate, endDate;
+    let fileName = '';
+
+    if (range === 'week') {
+        const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, etc.
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - dayOfWeek); // Go to the start of the week (Sunday)
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6); // Go to the end of the week (Saturday)
+        fileName = `weekly_summary_${formatDateForId(startDate)}_to_${formatDateForId(endDate)}`;
+    } else { // month
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        fileName = `monthly_summary_${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}`;
+    }
+
+    const startDateId = formatDateForId(startDate);
+    const endDateId = formatDateForId(endDate);
+    
+    alert(`Fetching data for range: ${startDateId} to ${endDateId}`);
+
+    // 2. Query Firestore for all documents within that date range
+    const summariesRef = collection(db, "dailySummaries");
+    const q = query(summariesRef, where('__name__', '>=', startDateId), where('__name__', '<=', endDateId));
+    
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        alert(`No data found for the selected ${range}.`);
+        return;
+    }
+
+    // 3. Merge all the fetched documents into a single summary
+    const combinedData = {};
+    querySnapshot.forEach(doc => {
+        const dayData = doc.data().associates;
+        Object.entries(dayData).forEach(([name, data]) => {
+            if (!combinedData[name]) {
+                combinedData[name] = { totalDuration: 0, picklists: [] };
+            }
+            // Add only new, unique picklists and their durations
+            data.picklists.forEach((picklistCode, index) => {
+                if (!combinedData[name].picklists.includes(picklistCode)) {
+                    combinedData[name].picklists.push(picklistCode);
+                    // This relies on the structure `totalDuration` being accurate in the daily doc
+                    const durationPerPick = data.totalDuration / data.picklists.length;
+                    combinedData[name].totalDuration += durationPerPick;
+                }
+            });
+        });
+    });
+
+    // 4. Calculate final totals and format for Excel
+    let totalPicklists = 0, totalSeconds = 0;
+    const summaryArray = Object.entries(combinedData).map(([name, data]) => {
+        totalPicklists += data.picklists.length;
+        totalSeconds += data.totalDuration;
+        return {
+            'Associate': name,
+            'Number of Picklists': data.picklists.length,
+            'Average Duration': formatDuration(data.picklists.length > 0 ? data.totalDuration / data.picklists.length : 0),
+        };
+    });
+
+    const finalReport = {
+        summary: summaryArray,
+        totalPicklists: totalPicklists,
+        overallAverageDuration: formatDuration(totalPicklists > 0 ? totalSeconds / totalPicklists : 0),
+    };
+
+    // 5. Generate and download the Excel file
+    generateExcel(finalReport, fileName);
+}
+
+
+/**
+ * --- NEW HELPER FUNCTION ---
+ * Generates an Excel file from a summary object and triggers download.
+ * @param {Object} reportData - The data object containing a summary array and totals.
+ * @param {string} fileName - The desired name for the output file.
+ */
+function generateExcel(reportData, fileName) {
+    const { summary, totalPicklists, overallAverageDuration } = reportData;
+    summary.sort((a, b) => b['Number of Picklists'] - a['Number of Picklists']);
+
     const dataForExcel = [...summary];
     dataForExcel.push({
       'Associate': 'TOTAL',
@@ -323,21 +354,29 @@ async function downloadWeeklySummary() {
     
     const ws = XLSX.utils.json_to_sheet(dataForExcel);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, `Week ${WEEK_ID} Summary`);
-    XLSX.writeFile(wb, `weekly_summary_${WEEK_ID}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, `Summary`);
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
 }
+
 
 // --- Main Execution ---
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('year').textContent = new Date().getFullYear();
-  document.getElementById('week-id-display').textContent = WEEK_ID;
   
-  // Event Listeners
-  document.getElementById('file-input').addEventListener('change', handleFileUpload);
-  document.getElementById('clear-btn').addEventListener('click', clearWeeklyData);
-  document.getElementById('download-btn').addEventListener('click', downloadWeeklySummary);
-  document.getElementById('toggle-view-btn').addEventListener('click', toggleView);
+  calendarInstance = flatpickr("#date-picker", {
+    defaultDate: "today",
+    dateFormat: "Y-m-d",
+    onChange: function(selectedDates, dateStr, instance) {
+      selectedDate = selectedDates[0];
+      loadDailyData();
+    },
+  });
 
-  // Initial data load
-  loadWeeklyData();
+  document.getElementById('file-input').addEventListener('change', handleFileUpload);
+  document.getElementById('clear-btn').addEventListener('click', clearDailyData);
+  document.getElementById('download-day-btn').addEventListener('click', downloadDailySummary);
+  document.getElementById('download-week-btn').addEventListener('click', () => downloadRangeSummary('week'));
+  document.getElementById('download-month-btn').addEventListener('click', () => downloadRangeSummary('month'));
+
+  loadDailyData();
 });
