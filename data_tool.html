@@ -4,72 +4,85 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daily Picklist Analyzer</title>
+    <title>Daily Picklist Analyzer - Halloween Edition 🎃</title>
+
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f47b.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="analyzer_style.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
+    <script src="spooky.js" defer></script>
   </head>
+
   <body>
+    <div id="halloween-banner">🎃 Happy Halloween 👻</div>
+
     <header>
       <h1>Daily Picklist Analyzer</h1>
-      <p>Select a date to view or add data for that day.</p>
+      <p>Enter… if you dare to analyze your data.</p>
     </header>
 
     <main class="analyzer">
       <section id="results-section" class="glass-card">
         <div class="toolbar">
-            <h3 id="summary-title">Summary for Today</h3>
-            <input type="text" id="date-picker" placeholder="Select a date">
+          <h3 id="summary-title">Summary for Today</h3>
+          <input type="text" id="date-picker" placeholder="Select a date" />
         </div>
-        
+
         <div id="table-container">
           <p>Loading data for the selected date...</p>
         </div>
-        
+
         <div class="button-group">
-            <button id="download-day-btn" disabled>
-              <i class="fa-solid fa-download"></i>
-              <span>Download Day</span>
-            </button>
-            <button id="download-week-btn">
-              <i class="fa-solid fa-calendar-week"></i>
-              <span>Download Week</span>
-            </button>
-            <button id="download-month-btn">
-              <i class="fa-solid fa-calendar-days"></i>
-              <span>Download Month</span>
-            </button>
-            <button id="clear-btn" disabled class="secondary-btn">
-                <i class="fa-solid fa-trash"></i>
-                <span>Clear Day's Data</span>
-            </button>
+          <button id="download-day-btn" disabled>
+            <i class="fa-solid fa-download"></i>
+            <span>Download Day</span>
+          </button>
+          <button id="download-week-btn">
+            <i class="fa-solid fa-calendar-week"></i>
+            <span>Download Week</span>
+          </button>
+          <button id="download-month-btn">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span>Download Month</span>
+          </button>
+          <button id="clear-btn" disabled class="secondary-btn">
+            <i class="fa-solid fa-trash"></i>
+            <span>Clear Day's Data</span>
+          </button>
         </div>
       </section>
 
       <section class="glass-card upload-section">
         <h2>Add a File to the Selected Date</h2>
-        
+
         <label for="file-input" class="file-upload-label">
           <i class="fa-solid fa-cloud-arrow-up"></i>
           <span>Choose File to Add</span>
         </label>
-        
+
         <input type="file" id="file-input" accept=".csv, .xls, .xlsx" style="display: none;" />
-        
         <p id="file-name-display" class="file-name">No file selected</p>
       </section>
     </main>
 
     <footer>
       <p>
-        &copy; <span id="year">2025</span> Projects Collection | Built with love
+        &copy; <span id="year">2025</span> Projects Collection | Halloween Edition 🎃
       </p>
     </footer>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script type="module" src="data_tool.js"></script>

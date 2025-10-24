@@ -1,53 +1,55 @@
+// --- Original Functional Script with Halloween Enhancements ---
 document.addEventListener('DOMContentLoaded', () => {
-  // --- 1. Set the current year in the footer ---
+  // 1. Update footer year
   const yearSpan = document.getElementById('year');
   if (yearSpan) {
     yearSpan.textContent = new Date().getFullYear();
   }
 
-  // --- 2. Animate cards on scroll-in ---
+  // 2. Animate cards when scrolled into view
   const cards = document.querySelectorAll('.card');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, index) => {
       if (entry.isIntersecting) {
-        // Add a delay based on the card's position for a staggered effect
-        entry.target.style.transition = `opacity 0.6s ease-out ${index * 100}ms, transform 0.6s ease-out ${index * 100}ms`;
         entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target); // Stop observing once it's visible
+        entry.target.style.transition = `opacity 0.8s ease-out ${index * 100}ms, transform 0.8s ease-out ${index * 100}ms`;
+        // Add glowing shimmer effect
+        entry.target.animate([
+          { boxShadow: '0 0 0px rgba(255,145,0,0)' },
+          { boxShadow: '0 0 20px rgba(255,145,0,0.7)' },
+          { boxShadow: '0 0 0px rgba(255,145,0,0)' }
+        ], { duration: 2000, easing: 'ease-in-out' });
+        observer.unobserve(entry.target);
       }
     });
-  }, {
-    threshold: 0.1 // Trigger when 10% of the card is visible
-  });
+  }, { threshold: 0.1 });
 
+  cards.forEach(card => observer.observe(card));
+
+  // 3. 3D tilt effect
   cards.forEach(card => {
-    observer.observe(card);
-  });
-
-  // --- 3. Add 3D tilt effect to cards ---
-  cards.forEach(card => {
-    const maxTilt = 15; // Max tilt in degrees
-
+    const maxTilt = 15;
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left; // Mouse x position within the card
-      const y = e.clientY - rect.top;  // Mouse y position within the card
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      // Calculate tilt values
-      const tiltX = ((y - centerY) / centerY) * -maxTilt;
-      const tiltY = ((x - centerX) / centerX) * maxTilt;
-
-      card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(1.05, 1.05, 1.05)`;
-      card.style.transition = 'transform 0.1s linear'; // Make it responsive to mouse
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const rotateY = ((x / rect.width) - 0.5) * (maxTilt * 2);
+      const rotateX = ((y / rect.height) - 0.5) * -(maxTilt * 2);
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
-
     card.addEventListener('mouseleave', () => {
-      // Reset transform when mouse leaves, adding a smooth transition back
-      card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
-      card.style.transition = 'transform 0.5s ease';
+      card.style.transform = 'rotateX(0) rotateY(0)';
+    });
+  });
+
+  // 4. Subtle Halloween hover pulse
+  cards.forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      card.animate([
+        { boxShadow: '0 0 0 rgba(255,145,0,0)' },
+        { boxShadow: '0 0 25px rgba(255,145,0,0.5)' },
+        { boxShadow: '0 0 0 rgba(255,145,0,0)' }
+      ], { duration: 1500, iterations: 1 });
     });
   });
 });
