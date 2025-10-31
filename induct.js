@@ -1,11 +1,115 @@
-/* Induct Finish – front-end storage + UI controller (localStorage) */
+/* Induct Finish – front-end storage + UI controller (localStorage + Notifications)
+   --------------------------------------------------------------------------------
+   What’s included:
+   - Request form (Employee ID + Shift)
+   - Admin login and panel (approve/deny with reason)
+   - Floating status box: Waiting (gray) / Approved (green) / Denied (red; click to view reason)
+   - Desktop notifications (OS sound) when a request is submitted
+     * Works while the site is OPEN somewhere (tab can be backgrounded/minimized)
+     * Requires sw.js registered and Notification permission granted
+*/
 
 (function () {
   const LS_KEY = 'induct_requests_v1';
   const SESSION_EMP_KEY = 'induct_current_employee_id';
   const STATUS = { PENDING: 'pending', APPROVED: 'approved', DENIED: 'denied' };
 
-  // ---- storage helpers ----
+  // =========================
+  // Service Worker + Notify
+  // =========================
+  let swReady = null;
+
+  function registerServiceWorkerAndAskPermission() {
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+
+    // Register SW (idempotent)
+    swReady = navigator.serviceWorker.register('sw.js')
+      .then((reg) => {
+        // Ensure a controller exists (might require a reload on first install)
+        if (!navigator.serviceWorker.controller) {
+          // Try to claim immediately if possible
+          navigator.serviceWorker.ready.then(() => {
+            // noop – after first page reload, controller will be available
+          });
+        }
+        return reg;
+      })
+      .catch((err) => {
+        console.warn('SW register failed:', err);
+        return null;
+      });
+
+    // Ask/ensure permission
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+  }
+
+  async function triggerLocalNotification(payload) {
+    try {
+      if (!('Notification' in window)) return;
+
+      // Get permission if needed
+      if (Notification.permission === 'default') {
+        await Notification.requestPermission();
+      }
+      if (Notification.permission !== 'granted') return;
+
+      // Prefer SW reg.showNotification (works even if tab not focused)
+      const reg = await (swReady || navigator.serviceWorker.getRegistration());
+      if (reg && reg.showNotification) {
+        await reg.showNotification(
+          payload.title || 'New Induct Finish Request',
+          {
+            body:
+              payload.body ||
+              `Employee ${payload.employeeId || 'Unknown'} (${payload.shift || 'N/A'}) submitted a request.`,
+            icon:
+              payload.icon ||
+              'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f47b.png',
+            badge:
+              payload.badge ||
+              'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f47b.png',
+            tag: payload.tag || 'induct-request',
+            renotify: true,
+            requireInteraction: true,
+            data: { url: payload.url || '/', meta: payload.meta || {} },
+          }
+        );
+        return;
+      }
+
+      // Fallback: ask active SW (if any) to show the notification
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'LOCAL_NOTIFY',
+          payload,
+        });
+        return;
+      }
+
+      // Last fallback: in-page Notification (only shows while page is open & may not persist)
+      // (Some browsers restrict Notification() constructor from pages; leave as best-effort.)
+      // eslint-disable-next-line no-new
+      new Notification(payload.title || 'New Induct Finish Request', {
+        body:
+          payload.body ||
+          `Employee ${payload.employeeId || 'Unknown'} (${payload.shift || 'N/A'}) submitted a request.`,
+        icon:
+          payload.icon ||
+          'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f47b.png',
+      });
+    } catch (e) {
+      console.warn('triggerLocalNotification error:', e);
+    }
+  }
+
+  // Try to register SW on load
+  registerServiceWorkerAndAskPermission();
+
+  // -------------------------
+  // storage helpers
+  // -------------------------
   function loadRequests() {
     try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
     catch { return []; }
@@ -29,7 +133,9 @@
     return null;
   }
 
-  // ---- dom helpers ----
+  // -------------------------
+  // dom/helpers
+  // -------------------------
   const $ = (sel) => document.querySelector(sel);
   const on = (el, ev, fn) => el && el.addEventListener(ev, fn);
 
@@ -57,7 +163,9 @@
   const tableBody  = $('#requests-table tbody');
   const emptyMsg   = $('#requests-empty');
 
-  // ---- modal controls ----
+  // -------------------------
+  // modal controls
+  // -------------------------
   function openModal(modal) {
     if (!modal) return;
     overlay.style.display = 'block';
@@ -79,7 +187,9 @@
     [requestModal, adminLoginModal, adminPanelModal].forEach(closeModal);
   });
 
-  // ---- status box ----
+  // -------------------------
+  // status box
+  // -------------------------
   function setStatusBox(state, text) {
     if (!statusBox) return;
     statusBox.style.display = 'block';
@@ -100,7 +210,7 @@
     const emp = sessionStorage.getItem(SESSION_EMP_KEY);
     if (!emp) { statusBox && (statusBox.style.display = 'none'); return; }
     const list = loadRequests();
-    const latest = list.find(r => r.employeeId === emp); // list newest-first
+    const latest = list.find(r => r.employeeId === emp); // list is newest-first
     if (!latest) { setStatusBox(STATUS.PENDING); return; }
     if (latest.status === STATUS.APPROVED) setStatusBox(STATUS.APPROVED);
     else if (latest.status === STATUS.DENIED) setStatusBox(STATUS.DENIED, 'Induct finish: DENIED (tap for reason)');
@@ -120,18 +230,21 @@
     }
   });
 
-  // ---- Request flow ----
+  // -------------------------
+  // Request flow
+  // -------------------------
   on(openRequestBtn, 'click', () => {
     if (empInput) empInput.value = sessionStorage.getItem(SESSION_EMP_KEY) || '';
     if (shiftInput) shiftInput.value = '';
     openModal(requestModal);
   });
 
-  on(submitReq, 'click', () => {
+  on(submitReq, 'click', async () => {
     const employeeId = (empInput?.value || '').trim();
     const shift = (shiftInput?.value || '').trim();
     if (!employeeId || !shift) {
-      alert('Please fill Employee ID and Shift.'); return;
+      alert('Please fill Employee ID and Shift.');
+      return;
     }
     const req = {
       id: 'REQ_' + Date.now(),
@@ -147,10 +260,21 @@
     setStatusBox(STATUS.PENDING);
     if (statusBox) statusBox.dataset.reqId = req.id;
     closeModal(requestModal);
+
+    // --- Trigger desktop notification (with OS sound) ---
+    await triggerLocalNotification({
+      title: '🧾 New Induct Finish Request',
+      body: `Employee ${employeeId} (${shift}) submitted a request.`,
+      url: (typeof location !== 'undefined') ? location.origin : '/',
+      tag: 'induct-request',
+    });
+
     alert('Request submitted. Your status will update once an admin reviews it.');
   });
 
-  // ---- Admin login + panel ----
+  // -------------------------
+  // Admin login + panel
+  // -------------------------
   let adminLoggedIn = false;
 
   on(openAdminBtn, 'click', () => {
@@ -250,6 +374,8 @@
     if (statusBox) statusBox.dataset.reqId = updatedReq.id;
   }
 
-  // ---- init ----
+  // -------------------------
+  // init
+  // -------------------------
   refreshStatusBoxForCurrentEmployee();
 })();
