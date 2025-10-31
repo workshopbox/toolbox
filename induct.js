@@ -2,8 +2,11 @@
    --------------------------------------------------------------------------------
    What’s included:
    - Request form (Employee ID + Shift)
-   - Admin login and panel (approve/deny with reason)
-   - Floating status box: Waiting (gray) / Approved (green) / Denied (red; click to view reason)
+   - Admin login and panel (approve/deny + DELETE STATUS)
+   - Floating status box:
+       • APPROVED (green)
+       • DENIED (red; click to view reason)
+       • HIDDEN when there is NO request on record (NEW per your ask)
    - Desktop notifications (OS sound) when a request is submitted
      * Works while the site is OPEN somewhere (tab can be backgrounded/minimized)
      * Requires sw.js registered and Notification permission granted
@@ -25,12 +28,8 @@
     // Register SW (idempotent)
     swReady = navigator.serviceWorker.register('sw.js')
       .then((reg) => {
-        // Ensure a controller exists (might require a reload on first install)
         if (!navigator.serviceWorker.controller) {
-          // Try to claim immediately if possible
-          navigator.serviceWorker.ready.then(() => {
-            // noop – after first page reload, controller will be available
-          });
+          navigator.serviceWorker.ready.then(() => { /* controller after first activation */ });
         }
         return reg;
       })
@@ -49,13 +48,11 @@
     try {
       if (!('Notification' in window)) return;
 
-      // Get permission if needed
       if (Notification.permission === 'default') {
         await Notification.requestPermission();
       }
       if (Notification.permission !== 'granted') return;
 
-      // Prefer SW reg.showNotification (works even if tab not focused)
       const reg = await (swReady || navigator.serviceWorker.getRegistration());
       if (reg && reg.showNotification) {
         await reg.showNotification(
@@ -79,7 +76,6 @@
         return;
       }
 
-      // Fallback: ask active SW (if any) to show the notification
       if (navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
           type: 'LOCAL_NOTIFY',
@@ -88,8 +84,7 @@
         return;
       }
 
-      // Last fallback: in-page Notification (only shows while page is open & may not persist)
-      // (Some browsers restrict Notification() constructor from pages; leave as best-effort.)
+      // Last fallback (best-effort)
       // eslint-disable-next-line no-new
       new Notification(payload.title || 'New Induct Finish Request', {
         body:
@@ -104,7 +99,7 @@
     }
   }
 
-  // Try to register SW on load
+  // Register SW on load
   registerServiceWorkerAndAskPermission();
 
   // -------------------------
@@ -131,6 +126,20 @@
       return list[idx];
     }
     return null;
+  }
+  function deleteRequest(id) {
+    const list = loadRequests();
+    const idx = list.findIndex(r => r.id === id);
+    if (idx >= 0) {
+      const [removed] = list.splice(idx, 1);
+      saveRequests(list);
+      return removed || null;
+    }
+    return null;
+  }
+  function latestRequestForEmployee(employeeId) {
+    const list = loadRequests();
+    return list.find(r => r.employeeId === employeeId) || null; // list is newest-first
   }
 
   // -------------------------
@@ -192,6 +201,15 @@
   // -------------------------
   function setStatusBox(state, text) {
     if (!statusBox) return;
+    if (!state) {
+      // Hide entirely (no waiting/anything) – requested behavior
+      statusBox.style.display = 'none';
+      statusBox.classList.remove('status-waiting','status-approved','status-denied');
+      statusBox.textContent = '';
+      statusBox.dataset.reqId = '';
+      return;
+    }
+
     statusBox.style.display = 'block';
     statusBox.classList.remove('status-waiting','status-approved','status-denied');
     if (state === STATUS.APPROVED) {
@@ -208,10 +226,9 @@
 
   function refreshStatusBoxForCurrentEmployee() {
     const emp = sessionStorage.getItem(SESSION_EMP_KEY);
-    if (!emp) { statusBox && (statusBox.style.display = 'none'); return; }
-    const list = loadRequests();
-    const latest = list.find(r => r.employeeId === emp); // list is newest-first
-    if (!latest) { setStatusBox(STATUS.PENDING); return; }
+    if (!emp) { setStatusBox(null); return; }
+    const latest = latestRequestForEmployee(emp);
+    if (!latest) { setStatusBox(null); return; } // HIDE when there is no request
     if (latest.status === STATUS.APPROVED) setStatusBox(STATUS.APPROVED);
     else if (latest.status === STATUS.DENIED) setStatusBox(STATUS.DENIED, 'Induct finish: DENIED (tap for reason)');
     else setStatusBox(STATUS.PENDING);
@@ -327,14 +344,23 @@
       tr.appendChild(tdStatus);
 
       const tdAction = document.createElement('td');
+
+      // Approve
       const approveBtn = document.createElement('button');
       approveBtn.className = 'btn btn-primary';
       approveBtn.textContent = 'Approve';
 
+      // Deny
       const denyBtn = document.createElement('button');
       denyBtn.className = 'btn btn-danger';
       denyBtn.style.marginLeft = '.4rem';
       denyBtn.textContent = 'Deny';
+
+      // DELETE STATUS (NEW) – removes this request entirely
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn btn-ghost';
+      deleteBtn.style.marginLeft = '.4rem';
+      deleteBtn.textContent = 'Delete Status';
 
       approveBtn.addEventListener('click', () => {
         const reason = prompt('Optional note for approval (visible to requester):', '');
@@ -351,8 +377,39 @@
         maybeUpdateStatusBox(updated);
       });
 
+      deleteBtn.addEventListener('click', () => {
+        const sure = confirm('Delete this status entirely? The requester will see no status until they submit a new request.');
+        if (!sure) return;
+
+        const removed = deleteRequest(req.id);
+        // Remove row from UI
+        tr.remove();
+
+        // If table became empty, show empty msg
+        if (!loadRequests().length) {
+          emptyMsg.style.display = 'block';
+        }
+
+        // If this requester is the one currently viewing, recompute their latest request
+        const currentEmp = sessionStorage.getItem(SESSION_EMP_KEY);
+        if (currentEmp && removed && removed.employeeId === currentEmp) {
+          const latest = latestRequestForEmployee(currentEmp);
+          if (!latest) {
+            // Hide the status box entirely (your requested behavior)
+            setStatusBox(null);
+          } else {
+            // Show whatever the next-latest status is
+            if (latest.status === STATUS.APPROVED) setStatusBox(STATUS.APPROVED);
+            else if (latest.status === STATUS.DENIED) setStatusBox(STATUS.DENIED, 'Induct finish: DENIED (tap for reason)');
+            else setStatusBox(STATUS.PENDING);
+            if (statusBox) statusBox.dataset.reqId = latest.id;
+          }
+        }
+      });
+
       tdAction.appendChild(approveBtn);
       tdAction.appendChild(denyBtn);
+      tdAction.appendChild(deleteBtn);
       tr.appendChild(tdAction);
 
       tableBody.appendChild(tr);
