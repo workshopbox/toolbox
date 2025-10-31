@@ -218,3 +218,125 @@ footer {
     font-size: 1.5rem;
   }
 }
+
+/* ===== Induct Finish UI (FABs, Modal, Status Box) ===== */
+.fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9998;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  background: linear-gradient(45deg, var(--accent-orange), var(--accent-purple));
+  color: #0d0d0d;
+  text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+.fab:hover { transform: translateY(-2px); }
+
+.fab-admin {
+  bottom: 78px; /* stack above the Request button */
+  background: rgba(40, 40, 60, 0.9);
+  color: var(--primary-text);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: none;
+}
+.modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: min(520px, 92vw);
+  transform: translate(-50%, -50%);
+  background: rgba(30, 10, 40, 0.85);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(255,145,0,0.25), 0 0 40px rgba(106,0,255,0.15);
+  color: var(--primary-text);
+  padding: 1.2rem 1.2rem 1.4rem;
+  display: none;
+  z-index: 10000;
+}
+.modal header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .8rem;
+}
+.modal h3 {
+  font-family: 'Nosifer', cursive;
+  font-size: 1.25rem;
+  color: var(--accent-orange);
+  text-shadow: 0 0 12px var(--accent-orange), 0 0 22px var(--accent-purple);
+}
+.modal .close-btn {
+  background: transparent;
+  border: none;
+  color: var(--secondary-text);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.modal .field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  margin: .6rem 0;
+}
+.modal label { font-weight: 600; color: var(--secondary-text); }
+.modal input, .modal select, .modal textarea {
+  background: rgba(10, 10, 25, 0.7);
+  border: 1px solid rgba(255,145,0,0.5);
+  color: var(--primary-text);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-family: 'Poppins', sans-serif;
+}
+.modal .actions {
+  display: flex; gap: .6rem; margin-top: .8rem; justify-content: flex-end;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: 0.7rem 1rem; border: none; border-radius: 8px; cursor: pointer;
+  box-shadow: 0 0 15px rgba(255,145,0,0.25);
+}
+.btn-primary {
+  background: linear-gradient(45deg, var(--accent-orange), var(--accent-purple));
+  color: #0d0d0d; font-weight: 700;
+}
+.btn-ghost {
+  background: rgba(40, 40, 60, 0.6); color: var(--primary-text);
+}
+.btn-danger {
+  background: rgba(180, 30, 50, 0.9); color: #fff;
+}
+
+.status-box {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 9998;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-weight: 700;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  cursor: pointer;
+  user-select: none;
+}
+.status-waiting { background: rgba(200, 200, 200, 0.12); border: 1px solid rgba(255,255,255,0.15); color: var(--secondary-text); }
+.status-approved { background: rgba(0, 160, 90, 0.25); border: 1px solid rgba(0, 255, 150, 0.35); color: #8fffc9; }
+.status-denied { background: rgba(170, 20, 40, 0.25); border: 1px solid rgba(255, 90, 110, 0.35); color: #ffc2ca; }

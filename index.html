@@ -24,6 +24,12 @@
     <!-- Styles -->
     <link rel="stylesheet" href="style.css" />
 
+    <!-- Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
     <!-- Spooky Animations -->
     <script src="spooky.js" defer></script>
   </head>
@@ -114,7 +120,7 @@
           </div>
         </a>
 
-        <!-- 🛒 New CartAudit Card -->
+        <!-- 🛒 CartAudit Card -->
         <a href="https://workshopbox.github.io/cartaudit/" class="card" title="Cart Audit Tool">
           <div class="card-content">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -138,6 +144,102 @@
       </p>
     </footer>
 
+    <!-- Induct Finish: Floating Buttons -->
+    <button id="open-request-btn" class="fab" title="Request for Induct Finish">
+      <i class="fa-solid fa-clipboard-check"></i>
+      <span>Request for Induct Finish</span>
+    </button>
+
+    <button id="open-admin-btn" class="fab fab-admin" title="Open Admin Panel">
+      <i class="fa-solid fa-user-shield"></i>
+      <span>Admin</span>
+    </button>
+
+    <!-- Induct Finish: Status Box -->
+    <div id="induct-status-box" class="status-box status-waiting" style="display:none;">
+      Waiting for status update…
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+
+    <!-- Request Modal -->
+    <div id="request-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="req-title">
+      <header>
+        <h3 id="req-title">Request for Induct Finish</h3>
+        <button class="close-btn" data-close="request-modal" aria-label="Close">✖</button>
+      </header>
+      <div class="field">
+        <label for="req-employee-id">Employee ID</label>
+        <input id="req-employee-id" type="text" placeholder="e.g., 123456" required />
+      </div>
+      <div class="field">
+        <label for="req-shift">Shift</label>
+        <select id="req-shift" required>
+          <option value="" selected disabled>Select shift</option>
+          <option>Pre-Shift</option>
+          <option>Day</option>
+          <option>Late</option>
+          <option>Night</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" data-close="request-modal">Cancel</button>
+        <button id="submit-request" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="admin-login-title">
+      <header>
+        <h3 id="admin-login-title">Admin Login</h3>
+        <button class="close-btn" data-close="admin-login-modal" aria-label="Close">✖</button>
+      </header>
+      <div class="field">
+        <label for="admin-email">Email</label>
+        <input id="admin-email" type="email" placeholder="admin@amazon.com" />
+      </div>
+      <div class="field">
+        <label for="admin-pass">Password</label>
+        <input id="admin-pass" type="password" placeholder="••••••••" />
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" data-close="admin-login-modal">Cancel</button>
+        <button id="admin-login-btn" class="btn btn-primary">Login</button>
+      </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-panel-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="admin-panel-title">
+      <header>
+        <h3 id="admin-panel-title">Induct Finish Requests</h3>
+        <button class="close-btn" data-close="admin-panel-modal" aria-label="Close">✖</button>
+      </header>
+
+      <div id="requests-empty" style="opacity:.85; margin:.4rem 0 .8rem; color:var(--secondary-text); display:none;">
+        No requests yet.
+      </div>
+
+      <div id="requests-table-wrap" style="max-height: 50vh; overflow:auto; border:1px solid rgba(255,255,255,0.1); border-radius: 10px;">
+        <table id="requests-table" class="results-table" style="margin:0;">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Employee ID</th>
+              <th>Shift</th>
+              <th>Status</th>
+              <th style="min-width:180px;">Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Induct logic -->
+    <script src="induct.js"></script>
+
+    <!-- Existing site logic -->
     <script src="script.js"></script>
   </body>
 </html>
