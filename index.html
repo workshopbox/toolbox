@@ -4,43 +4,29 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Projects Collection - Halloween Edition 🎃</title>
+    <title>Projects Collection</title>
 
-    <!-- Favicon -->
-    <link
-      rel="icon"
-      href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f47b.png"
-      type="image/png"
-    />
-
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Poppins:wght@300;400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Styles -->
     <link rel="stylesheet" href="style.css" />
 
-    <!-- Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
 
-    <!-- Spooky Animations -->
-    <script src="spooky.js" defer></script>
   </head>
 
   <body>
-    <!-- Floating Halloween Banner -->
-    <div id="halloween-banner">🎃 Happy Halloween 👻</div>
 
     <header>
       <h1>Projects Collection</h1>
-      <p>Where ghosts of past projects still live...</p>
+      <p>A collection of tools and utilities.</p>
     </header>
 
     <main>
@@ -56,7 +42,7 @@
               />
             </svg>
             <span>Amazon Pick &amp; Stage Cal</span>
-            <p class="description">Analyze picklists... if you dare.</p>
+            <p class="description">Analyze daily picklist data.</p>
           </div>
         </a>
 
@@ -76,7 +62,7 @@
               />
             </svg>
             <span>Amazon Wave Check</span>
-            <p class="description">Monitor your waves — or ghosts might!</p>
+            <p class="description">Check and monitor wave data.</p>
           </div>
         </a>
 
@@ -96,7 +82,7 @@
               />
             </svg>
             <span>Project ChronoShift</span>
-            <p class="description">Time... is haunting your schedule.</p>
+            <p class="description">A tool for schedule management.</p>
           </div>
         </a>
 
@@ -116,11 +102,10 @@
               />
             </svg>
             <span>Caproster Comparator</span>
-            <p class="description">Find missing drivers... or missing souls 👻</p>
+            <p class="description">Compare Caproster data.</p>
           </div>
         </a>
 
-        <!-- 🛒 CartAudit Card -->
         <a href="https://workshopbox.github.io/cartaudit/" class="card" title="Cart Audit Tool">
           <div class="card-content">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -140,11 +125,10 @@
 
     <footer>
       <p>
-        &copy; <span id="year">2025</span> Karim Elbeih Project Collection | Halloween Edition 🎃
+        &copy; <span id="year">2025</span> Karim Elbeih Project Collection
       </p>
     </footer>
 
-    <!-- Induct Finish: Floating Buttons -->
     <button id="open-request-btn" class="fab" title="Request for Induct Finish">
       <i class="fa-solid fa-clipboard-check"></i>
       <span>Request for Induct Finish</span>
@@ -155,15 +139,12 @@
       <span>Admin</span>
     </button>
 
-    <!-- Induct Finish: Status Box -->
     <div id="induct-status-box" class="status-box status-waiting" style="display:none;">
       Waiting for status update…
     </div>
 
-    <!-- Modals -->
     <div id="modal-overlay" class="modal-overlay"></div>
 
-    <!-- Request Modal -->
     <div id="request-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="req-title">
       <header>
         <h3 id="req-title">Request for Induct Finish</h3>
@@ -189,7 +170,6 @@
       </div>
     </div>
 
-    <!-- Admin Login Modal -->
     <div id="admin-login-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="admin-login-title">
       <header>
         <h3 id="admin-login-title">Admin Login</h3>
@@ -209,7 +189,6 @@
       </div>
     </div>
 
-    <!-- Admin Panel Modal -->
     <div id="admin-panel-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="admin-panel-title">
       <header>
         <h3 id="admin-panel-title">Induct Finish Requests</h3>
@@ -236,10 +215,8 @@
       </div>
     </div>
 
-    <!-- Induct logic -->
     <script src="induct.js"></script>
 
-    <!-- Existing site logic -->
     <script src="script.js"></script>
   </body>
 </html>

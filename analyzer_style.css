@@ -1,27 +1,35 @@
 /*
- * HALLOWEEN EDITION - Picklist Analyzer
- * Functional structure preserved — themed visuals only.
+ * Winter UI - Picklist Analyzer
+ * Clean, dark-mode theme matching the main site.
  */
+
+:root {
+  --bg-color: #1a202c; /* Dark Slate */
+  --card-bg: #2d3748; /* Lighter Slate */
+  --primary-text: #e2e8f0; /* Light Gray */
+  --secondary-text: #a0aec0; /* Medium Gray */
+  --accent-blue: #3182ce; /* Winter Blue */
+  --card-border: rgba(255, 255, 255, 0.08);
+}
 
 main.analyzer {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+  padding: 1rem 1rem 4rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-/* Glass Card styling (spooky) */
+/* Re-styled "glass-card" to be a standard content card */
 .glass-card {
-  background: rgba(40, 10, 70, 0.35);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  box-shadow: 0 0 25px rgba(255, 145, 0, 0.2), 0 0 40px rgba(106, 0, 255, 0.15);
-  padding: 2.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
   color: var(--primary-text);
-  animation: fadeIn 0.6s ease-out forwards, flickerLight 5s infinite alternate;
+  animation: fadeIn 0.6s ease-out forwards;
 }
 
 @keyframes fadeIn {
@@ -37,31 +45,38 @@ main.analyzer {
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255,255,255,0.15);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .toolbar h3 {
-  color: #ff9100;
-  text-shadow: 0 0 20px #ff9100, 0 0 30px #6a00ff;
-  font-family: 'Nosifer', cursive;
+  color: var(--primary-text);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.5rem;
 }
 
 /* Date Picker */
 #date-picker {
-  background: rgba(10, 10, 25, 0.7);
-  border: 1px solid rgba(255, 145, 0, 0.5);
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
   color: var(--primary-text);
   border-radius: 8px;
   padding: 0.5rem 1rem;
   font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   width: 180px;
-  box-shadow: 0 0 15px rgba(255,145,0,0.2);
+  transition: all 0.2s ease;
 }
 
 #date-picker:hover {
-  box-shadow: 0 0 20px rgba(255,145,0,0.4);
+  border-color: var(--secondary-text);
+}
+
+#date-picker:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.3);
 }
 
 /* Table styling */
@@ -73,30 +88,31 @@ main.analyzer {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
-  background: rgba(30, 10, 40, 0.6);
+  background: var(--bg-color);
   border-radius: 10px;
+  overflow: hidden; /* For border-radius */
 }
 
 .results-table th,
 .results-table td {
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--card-border);
   padding: 0.75rem 1rem;
   text-align: left;
   color: var(--primary-text);
 }
 
 .results-table th {
-  background: rgba(255, 145, 0, 0.1);
+  background: rgba(49, 130, 206, 0.1);
   font-weight: 600;
-  color: #ff9100;
+  color: #90cdf4; /* Light Blue */
 }
 
 .results-table tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
 .results-table tr:hover {
-  background-color: rgba(255, 145, 0, 0.1);
+  background-color: rgba(49, 130, 206, 0.05);
 }
 
 /* Buttons */
@@ -107,7 +123,8 @@ main.analyzer {
   gap: 0.75rem;
 }
 
-.button-group button {
+.button-group button,
+.file-upload-label {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
@@ -117,67 +134,57 @@ main.analyzer {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 15px rgba(255,145,0,0.25);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.button-group button:hover:not(:disabled) {
+.button-group button:hover:not(:disabled),
+.file-upload-label:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 25px rgba(255,145,0,0.5);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 /* Primary Buttons */
 #download-day-btn,
 #download-week-btn,
-#download-month-btn {
-  color: #0d0d0d;
-  background: linear-gradient(45deg, #ff9100, #6a00ff);
-  text-shadow: 0 0 5px rgba(255,255,255,0.5);
+#download-month-btn,
+.file-upload-label {
+  color: #ffffff;
+  background: var(--accent-blue);
 }
 
 #download-day-btn:hover:not(:disabled),
 #download-week-btn:hover:not(:disabled),
-#download-month-btn:hover:not(:disabled) {
-  background: linear-gradient(45deg, #ffb347, #884dff);
+#download-month-btn:hover:not(:disabled),
+.file-upload-label:hover {
+  background: #2b6cb0; /* Darker Blue */
+  box-shadow: 0 4px 15px rgba(49, 130, 206, 0.25);
 }
 
 /* Secondary (Clear) */
 .secondary-btn {
-  color: #fff5e1;
-  background: rgba(40, 40, 60, 0.6);
+  color: var(--primary-text);
+  background: #4a5568; /* Medium Gray */
 }
 
 .secondary-btn:hover:not(:disabled) {
-  background: rgba(70, 70, 100, 0.8);
-  box-shadow: 0 0 20px rgba(255,145,0,0.3);
+  background: #718096; /* Lighter Gray */
 }
+
+/* Disabled state */
+.button-group button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 
 /* Upload Section */
 .upload-section h2 {
-  color: #ff9100;
-  text-shadow: 0 0 20px #ff9100, 0 0 40px #6a00ff;
-  font-family: 'Nosifer', cursive;
-}
-
-/* File Upload Button */
-.file-upload-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
+  color: var(--primary-text);
+  font-family: 'Poppins', sans-serif;
   font-weight: 600;
-  color: #0d0d0d;
-  background: linear-gradient(45deg, #ff9100, #6a00ff);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 20px rgba(255,145,0,0.3);
-}
-
-.file-upload-label:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(255,145,0,0.5);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 /* File name text */
@@ -185,10 +192,4 @@ main.analyzer {
   margin-top: 1rem;
   font-size: 0.9rem;
   color: var(--secondary-text);
-}
-
-/* Light flicker animation for ambient effect */
-@keyframes flickerLight {
-  0%, 100% { box-shadow: 0 0 25px rgba(255,145,0,0.2); }
-  50% { box-shadow: 0 0 35px rgba(255,145,0,0.5); }
 }

@@ -1,19 +1,15 @@
 /*
- * HALLOWEEN EDITION - Projects Collection Site
- * Glowing orange/purple theme with fog, ghosts, and spooky animations.
- * Original functionality remains intact.
+ * Winter UI - Projects Collection Site
+ * A clean, dark-mode theme with blue accents.
  */
 
 :root {
-  --bg-color: #0b0614;
-  --primary-text: #fff5e1;
-  --secondary-text: #d9b8ff;
-  --accent-orange: #ff9100;
-  --accent-purple: #6a00ff;
-  --card-bg: rgba(40, 20, 60, 0.35);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --fog-color: rgba(255, 255, 255, 0.1);
-  --glow: 0 0 25px rgba(255, 145, 0, 0.7);
+  --bg-color: #1a202c; /* Dark Slate */
+  --card-bg: #2d3748; /* Lighter Slate */
+  --primary-text: #e2e8f0; /* Light Gray */
+  --secondary-text: #a0aec0; /* Medium Gray */
+  --accent-blue: #3182ce; /* Winter Blue */
+  --card-border: rgba(255, 255, 255, 0.08);
 }
 
 /* Base Reset */
@@ -25,78 +21,41 @@
 
 html, body {
   height: 100%;
-  font-family: 'Creepster', 'Nosifer', cursive, 'Poppins', sans-serif;
-  background: radial-gradient(circle at 30% 20%, #1c0026, #0b0614 70%);
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
   color: var(--primary-text);
   overflow-x: hidden;
   line-height: 1.6;
   position: relative;
 }
 
-/* --- Fog and Lightning Layers --- */
-body::before, body::after {
-  content: '';
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: -1;
-}
-
-body::before {
-  background: url('https://cdn.jsdelivr.net/gh/karimelb8/assets/fog-layer.svg');
-  background-size: cover;
-  opacity: 0.15;
-  animation: fogDrift 60s linear infinite;
-}
-
-body::after {
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 80%);
-  opacity: 0;
-  animation: lightningFlash 12s infinite;
-}
 
 /* --- Header --- */
 header {
   text-align: center;
-  padding: 7rem 1rem 5rem;
+  padding: 4rem 1rem 3rem;
   position: relative;
   color: var(--primary-text);
 }
 
 header h1 {
-  font-size: 4rem;
-  text-shadow: 0 0 20px var(--accent-orange), 0 0 40px var(--accent-purple);
-  color: var(--accent-orange);
-  animation: flickerText 3s infinite alternate;
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--primary-text);
 }
 
 header p {
-  font-family: 'Poppins', sans-serif;
   color: var(--secondary-text);
   font-size: 1.2rem;
   opacity: 0.85;
-}
-
-/* --- Floating Happy Halloween Text --- */
-#halloween-banner {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 2rem;
-  color: #ff9100;
-  text-shadow: 0 0 20px #ff9100, 0 0 50px #6a00ff;
-  animation: floatGlow 4s ease-in-out infinite alternate;
-  z-index: 9999;
-  pointer-events: none;
+  margin-top: 0.5rem;
 }
 
 /* --- Card Section --- */
 main {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+  padding: 1rem 1rem 4rem;
 }
 
 .card-grid {
@@ -109,15 +68,13 @@ main {
 .card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
   color: var(--primary-text);
   text-decoration: none;
-  box-shadow: 0 0 20px rgba(255, 145, 0, 0.15);
-  transition: all 0.4s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(20px);
 }
 
 .card.is-visible {
@@ -126,8 +83,9 @@ main {
 }
 
 .card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 0 35px rgba(255, 145, 0, 0.4);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(49, 130, 206, 0.2);
+  border-color: rgba(49, 130, 206, 0.5);
 }
 
 .card-content {
@@ -137,21 +95,20 @@ main {
   justify-content: center;
   height: 100%;
   text-align: center;
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
 .card .icon {
   width: 48px;
   height: 48px;
-  stroke: var(--accent-orange);
+  stroke: var(--accent-blue);
   fill: none;
   margin-bottom: 1rem;
-  filter: drop-shadow(0 0 6px var(--accent-orange));
   transition: transform 0.3s ease;
 }
 
 .card:hover .icon {
-  transform: scale(1.1) rotate(-5deg);
+  transform: scale(1.1);
 }
 
 .card span {
@@ -174,48 +131,14 @@ footer {
   color: var(--secondary-text);
   background: transparent;
   font-size: 0.9rem;
-}
-
-/* --- Keyframes --- */
-@keyframes flickerText {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-    opacity: 1;
-  }
-  20%, 24%, 55% {
-    opacity: 0.3;
-  }
-}
-
-@keyframes fogDrift {
-  0% { background-position: 0 0; }
-  100% { background-position: 100% 0; }
-}
-
-@keyframes lightningFlash {
-  0%, 95%, 100% { opacity: 0; }
-  96% { opacity: 0.8; }
-  97% { opacity: 0.2; }
-  98% { opacity: 1; }
-}
-
-@keyframes floatGlow {
-  from {
-    transform: translateX(-50%) translateY(0);
-    text-shadow: 0 0 20px #ff9100;
-  }
-  to {
-    transform: translateX(-50%) translateY(-10px);
-    text-shadow: 0 0 30px #6a00ff;
-  }
+  margin-top: 2rem;
+  border-top: 1px solid var(--card-border);
 }
 
 /* --- Responsiveness --- */
 @media (max-width: 768px) {
   header h1 {
-    font-size: 2.8rem;
-  }
-  #halloween-banner {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
   }
 }
 
@@ -229,28 +152,37 @@ footer {
   align-items: center;
   gap: 0.6rem;
   padding: 0.9rem 1.1rem;
-  font-weight: 700;
+  font-weight: 600;
   border: none;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
-  background: linear-gradient(45deg, var(--accent-orange), var(--accent-purple));
-  color: #0d0d0d;
-  text-shadow: 0 0 5px rgba(255,255,255,0.5);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  background: var(--accent-blue);
+  color: #ffffff;
+  transition: all 0.2s ease;
 }
-.fab:hover { transform: translateY(-2px); }
+.fab:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 10px 25px rgba(49, 130, 206, 0.3);
+  background: #2b6cb0; /* Darker blue */
+}
 
 .fab-admin {
   bottom: 78px; /* stack above the Request button */
-  background: rgba(40, 40, 60, 0.9);
+  background: var(--card-bg);
   color: var(--primary-text);
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid var(--card-border);
+}
+
+.fab-admin:hover {
+  background: #4a5568; /* Lighten */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
 }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.4);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 9999;
@@ -262,10 +194,10 @@ footer {
   top: 50%;
   width: min(520px, 92vw);
   transform: translate(-50%, -50%);
-  background: rgba(30, 10, 40, 0.85);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 16px;
-  box-shadow: 0 0 25px rgba(255,145,0,0.25), 0 0 40px rgba(106,0,255,0.15);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   color: var(--primary-text);
   padding: 1.2rem 1.2rem 1.4rem;
   display: none;
@@ -276,12 +208,14 @@ footer {
   justify-content: space-between;
   align-items: center;
   margin-bottom: .8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--card-border);
 }
 .modal h3 {
-  font-family: 'Nosifer', cursive;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.25rem;
-  color: var(--accent-orange);
-  text-shadow: 0 0 12px var(--accent-orange), 0 0 22px var(--accent-purple);
+  font-weight: 600;
+  color: var(--primary-text);
 }
 .modal .close-btn {
   background: transparent;
@@ -289,6 +223,11 @@ footer {
   color: var(--secondary-text);
   font-size: 1.25rem;
   cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+.modal .close-btn:hover {
+  opacity: 1;
 }
 
 .modal .field {
@@ -297,32 +236,53 @@ footer {
   gap: .35rem;
   margin: .6rem 0;
 }
-.modal label { font-weight: 600; color: var(--secondary-text); }
+.modal label { font-weight: 600; color: var(--secondary-text); font-size: 0.9rem; }
 .modal input, .modal select, .modal textarea {
-  background: rgba(10, 10, 25, 0.7);
-  border: 1px solid rgba(255,145,0,0.5);
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
   color: var(--primary-text);
   border-radius: 8px;
   padding: 0.6rem 0.8rem;
   font-family: 'Poppins', sans-serif;
+  transition: border-color 0.2s ease;
 }
+.modal input:focus, .modal select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.3);
+}
+
 .modal .actions {
   display: flex; gap: .6rem; margin-top: .8rem; justify-content: flex-end;
 }
 .btn {
   display: inline-flex; align-items: center; gap: .5rem;
   padding: 0.7rem 1rem; border: none; border-radius: 8px; cursor: pointer;
-  box-shadow: 0 0 15px rgba(255,145,0,0.25);
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 .btn-primary {
-  background: linear-gradient(45deg, var(--accent-orange), var(--accent-purple));
-  color: #0d0d0d; font-weight: 700;
+  background: var(--accent-blue);
+  color: #fff;
 }
+.btn-primary:hover {
+  background: #2b6cb0;
+}
+
 .btn-ghost {
-  background: rgba(40, 40, 60, 0.6); color: var(--primary-text);
+  background: #4a5568; 
+  color: var(--primary-text);
 }
+.btn-ghost:hover {
+  background: #718096;
+}
+
 .btn-danger {
-  background: rgba(180, 30, 50, 0.9); color: #fff;
+  background: #c53030; 
+  color: #fff;
+}
+.btn-danger:hover {
+  background: #9b2c2c;
 }
 
 .status-box {
@@ -332,11 +292,23 @@ footer {
   z-index: 9998;
   border-radius: 12px;
   padding: 0.8rem 1rem;
-  font-weight: 700;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
   cursor: pointer;
   user-select: none;
+  border: 1px solid var(--card-border);
 }
-.status-waiting { background: rgba(200, 200, 200, 0.12); border: 1px solid rgba(255,255,255,0.15); color: var(--secondary-text); }
-.status-approved { background: rgba(0, 160, 90, 0.25); border: 1px solid rgba(0, 255, 150, 0.35); color: #8fffc9; }
-.status-denied { background: rgba(170, 20, 40, 0.25); border: 1px solid rgba(255, 90, 110, 0.35); color: #ffc2ca; }
+.status-waiting { 
+  background: var(--card-bg); 
+  color: var(--secondary-text); 
+}
+.status-approved { 
+  background: rgba(49, 151, 149, 0.15); 
+  border-color: #38b2ac; 
+  color: #9ae6b4; 
+}
+.status-denied { 
+  background: rgba(197, 48, 48, 0.15); 
+  border-color: #c53030; 
+  color: #feb2b2; 
+}
