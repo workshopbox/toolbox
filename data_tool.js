@@ -68,6 +68,8 @@ function renderTable(dailyData) {
   const summaryTitle = document.getElementById('summary-title');
   const downloadBtn = document.getElementById('download-day-btn');
   const clearBtn = document.getElementById('clear-btn');
+  const podiumSection = document.getElementById('podium-section'); 
+
   container.innerHTML = '';
 
   const selectedDateId = formatDateForId(selectedDate);
@@ -78,6 +80,7 @@ function renderTable(dailyData) {
     container.innerHTML = '<p>No data uploaded for this day yet.</p>';
     downloadBtn.disabled = true;
     clearBtn.disabled = true;
+    if(podiumSection) podiumSection.style.display = 'none'; // Hide podium if no data
     return;
   }
 
@@ -112,7 +115,70 @@ function renderTable(dailyData) {
   container.appendChild(table);
   downloadBtn.disabled = false;
   clearBtn.disabled = false;
+
+  // Update the Podium with the sorted data
+  updatePodium(summary);
 }
+
+/**
+ * Updates the Podium/Ranking stage with top 3 associates and avatars.
+ * @param {Array} sortedData - Array of associate objects sorted by picklists.
+ */
+function updatePodium(sortedData) {
+  const podiumSection = document.getElementById('podium-section');
+  
+  if (!sortedData || sortedData.length === 0) {
+    podiumSection.style.display = 'none';
+    return;
+  }
+
+  podiumSection.style.display = 'block';
+
+  // Helper to generate avatar URL (using UI Avatars API)
+  // We match the background color to the medal color
+  const getAvatar = (name, bg) => 
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${bg}&color=fff&size=128&bold=true&font-size=0.4`;
+
+  // --- 1st Place (Gold) ---
+  if (sortedData[0]) {
+    const name = sortedData[0]['Associate'];
+    const picks = sortedData[0]['Number of Picklists'];
+    document.getElementById('p1-name').textContent = name;
+    document.getElementById('p1-stat').textContent = `${picks} Picks`;
+    document.getElementById('p1-avatar').src = getAvatar(name, 'D69E2E'); // Gold-ish
+  } else {
+    document.getElementById('p1-name').textContent = '--';
+    document.getElementById('p1-stat').textContent = '';
+    document.getElementById('p1-avatar').src = '';
+  }
+
+  // --- 2nd Place (Silver) ---
+  const rank2Col = document.querySelector('.rank-2');
+  if (sortedData[1]) {
+    rank2Col.style.visibility = 'visible';
+    const name = sortedData[1]['Associate'];
+    const picks = sortedData[1]['Number of Picklists'];
+    document.getElementById('p2-name').textContent = name;
+    document.getElementById('p2-stat').textContent = `${picks} Picks`;
+    document.getElementById('p2-avatar').src = getAvatar(name, '718096'); // Silver-ish
+  } else {
+    rank2Col.style.visibility = 'hidden';
+  }
+
+  // --- 3rd Place (Bronze) ---
+  const rank3Col = document.querySelector('.rank-3');
+  if (sortedData[2]) {
+    rank3Col.style.visibility = 'visible';
+    const name = sortedData[2]['Associate'];
+    const picks = sortedData[2]['Number of Picklists'];
+    document.getElementById('p3-name').textContent = name;
+    document.getElementById('p3-stat').textContent = `${picks} Picks`;
+    document.getElementById('p3-avatar').src = getAvatar(name, 'C05621'); // Bronze-ish
+  } else {
+    rank3Col.style.visibility = 'hidden';
+  }
+}
+
 
 /**
  * Fetches data for the currently selected date from Firebase and displays it.
@@ -254,7 +320,6 @@ async function downloadDailySummary() {
 }
 
 /**
- * --- NEW FUNCTION ---
  * Fetches and downloads a combined summary for a given date range (week or month).
  * @param {'week' | 'month'} range - The period to download.
  */
@@ -336,7 +401,6 @@ async function downloadRangeSummary(range) {
 
 
 /**
- * --- NEW HELPER FUNCTION ---
  * Generates an Excel file from a summary object and triggers download.
  * @param {Object} reportData - The data object containing a summary array and totals.
  * @param {string} fileName - The desired name for the output file.
