@@ -51,6 +51,26 @@ const ASSOCIATE_NICKNAMES = {
   "misnezan": "Snow",
   "tbadakar": "Nerd",
   "ozeitsch": "El Level 5",
+  // --- NEW NAMES ADDED BELOW ---
+  "wosiyoum": "Kroch",
+  "qberivan": "Jana",
+  "ezzalezz": "Livling",
+  "necmirer": "Tisa",
+  "alalizmu": "Kobano",
+  "hrizmoha": "Momo",
+  "paberdau": "Bero",
+  "iedzelil": "Iza",
+  "nagzalex": "Lexi",
+  "mazyoust": "Zoz",
+  "mouamiri": "Afg",
+  "ohalkhal": "Khal",
+  "daaabdif": "Daaha",
+  "bilalahw": "Kabul",
+  "loanacre": "Ioni",
+  "jatleutc": "Japhi",
+  "rgglavin": "Kira",
+  "mehuenal": "Dragon",
+  "khaabdep": "King",
 };
 
 /**
