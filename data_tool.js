@@ -25,6 +25,46 @@ const db = getFirestore(app);
 let selectedDate = new Date(); // Store as a Date object
 let calendarInstance = null;
 
+// --- ASSOCIATE NICKNAME MAPPING (FOR DATENSCHUTZ) ---
+const ASSOCIATE_NICKNAMES = {
+  "hasnabiq": "Ehsan",
+  "danutbta": "Rambo",
+  "hasamohj": "Abubakr",
+  "ushinwar": "Wolf",
+  "fausterd": "Mausi",
+  "dlouthom": "Tom",
+  "gehbjakK": "JG",
+  "haileila": "Lalusch",
+  "rashigul": "Blume",
+  "osungudi": "Miro",
+  "fsolmasu": "Katze",
+  "asfmari": "Roj",
+  "bsahramh": "Elefant",
+  "marilija": "Gametag",
+  "mapshafi": "Lion",
+  "pjumasou": "Tom",
+  "elhsahér": "Sphinx",
+  "akinduti": "Wisdom",
+  "amesabde": "Fr3on",
+  "velicefi": "Cem",
+  "nathrasc": "Rainbow",
+  "misnezan": "Snow",
+  "tbadakar": "Nerd",
+  "ozeitsch": "El Level 5",
+};
+
+/**
+ * Gets the nickname for a given Associate ID.
+ * @param {string} id - The Associate ID (real name).
+ * @returns {string} The Nickname or the original ID if not found.
+ */
+function getAssociateName(id) {
+  const lowerId = id.toLowerCase();
+  // Check against the lowercased keys in the map
+  const nickname = ASSOCIATE_NICKNAMES[lowerId];
+  return nickname || id;
+}
+
 
 /**
  * Formats a Date object into a YYYY-MM-DD string for use as a Firestore document ID.
@@ -85,6 +125,7 @@ function renderTable(dailyData) {
   }
 
   const { summary, totalPicklists, overallAverageDuration } = dailyData;
+  // Sort the data, but keep a reference to the real ID for rendering
   summary.sort((a, b) => b['Number of Picklists'] - a['Number of Picklists']);
 
   const table = document.createElement('table');
@@ -92,6 +133,7 @@ function renderTable(dailyData) {
   
   const thead = table.createTHead();
   const headerRow = thead.insertRow();
+  // Get keys from the first row to create headers
   const headers = Object.keys(summary[0]);
   headers.forEach(key => {
     headerRow.insertCell().textContent = key;
@@ -101,7 +143,47 @@ function renderTable(dailyData) {
   summary.forEach(row => {
     const tr = tbody.insertRow();
     headers.forEach(header => {
-      tr.insertCell().textContent = row[header];
+      const cell = tr.insertCell();
+      const value = row[header];
+
+      if (header === 'Associate') {
+        const originalId = value;
+        const displayName = getAssociateName(originalId);
+        
+        // Use a div to allow for flexible positioning of the button/text
+        const contentDiv = document.createElement('div');
+        contentDiv.style.display = 'flex';
+        contentDiv.style.alignItems = 'center';
+        contentDiv.style.gap = '10px';
+        contentDiv.style.flexWrap = 'wrap';
+
+        // Display the nickname
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = displayName;
+        nameSpan.style.whiteSpace = 'nowrap';
+        contentDiv.appendChild(nameSpan);
+        
+        // Create the "Show ID" button
+        const showIdBtn = document.createElement('button');
+        showIdBtn.textContent = 'Show ID';
+        showIdBtn.className = 'btn btn-ghost btn-show-id';
+        showIdBtn.style.padding = '5px 10px';
+        showIdBtn.style.fontSize = '0.75rem';
+        showIdBtn.style.lineHeight = '1';
+        showIdBtn.style.boxShadow = 'none';
+        showIdBtn.style.transition = 'none';
+        showIdBtn.style.flexShrink = '0';
+        
+        showIdBtn.addEventListener('click', () => {
+          alert(`Associate ID for ${displayName}: ${originalId}`);
+        });
+
+        contentDiv.appendChild(showIdBtn);
+        cell.appendChild(contentDiv);
+        
+      } else {
+        cell.textContent = value;
+      }
     });
   });
 
@@ -116,7 +198,7 @@ function renderTable(dailyData) {
   downloadBtn.disabled = false;
   clearBtn.disabled = false;
 
-  // Update the Podium with the sorted data
+  // Update the Podium with the sorted data (using nicknames)
   updatePodium(summary);
 }
 
@@ -141,7 +223,8 @@ function updatePodium(sortedData) {
 
   // --- 1st Place (Gold) ---
   if (sortedData[0]) {
-    const name = sortedData[0]['Associate'];
+    const originalId = sortedData[0]['Associate'];
+    const name = getAssociateName(originalId); // Use Nickname
     const picks = sortedData[0]['Number of Picklists'];
     document.getElementById('p1-name').textContent = name;
     document.getElementById('p1-stat').textContent = `${picks} Picks`;
@@ -156,7 +239,8 @@ function updatePodium(sortedData) {
   const rank2Col = document.querySelector('.rank-2');
   if (sortedData[1]) {
     rank2Col.style.visibility = 'visible';
-    const name = sortedData[1]['Associate'];
+    const originalId = sortedData[1]['Associate'];
+    const name = getAssociateName(originalId); // Use Nickname
     const picks = sortedData[1]['Number of Picklists'];
     document.getElementById('p2-name').textContent = name;
     document.getElementById('p2-stat').textContent = `${picks} Picks`;
@@ -169,7 +253,8 @@ function updatePodium(sortedData) {
   const rank3Col = document.querySelector('.rank-3');
   if (sortedData[2]) {
     rank3Col.style.visibility = 'visible';
-    const name = sortedData[2]['Associate'];
+    const originalId = sortedData[2]['Associate'];
+    const name = getAssociateName(originalId); // Use Nickname
     const picks = sortedData[2]['Number of Picklists'];
     document.getElementById('p3-name').textContent = name;
     document.getElementById('p3-stat').textContent = `${picks} Picks`;
@@ -234,6 +319,7 @@ async function handleFileUpload(event) {
         if (!newFileData[assocName]) {
             newFileData[assocName] = { picklists: new Map() };
         }
+        // Save the raw ID/Name in the internal structure
         if (!newFileData[assocName].picklists.has(picklistCode)) {
             newFileData[assocName].picklists.set(picklistCode, parseDuration(row[durationCol]));
         }
@@ -245,6 +331,7 @@ async function handleFileUpload(event) {
     const existingData = docSnap.data()?.associates ?? {};
 
     Object.entries(newFileData).forEach(([name, data]) => {
+        // Use the actual ID/Name as the key for the internal structure
         if (!existingData[name]) {
             existingData[name] = { totalDuration: 0, picklists: [] };
         }
@@ -260,6 +347,7 @@ async function handleFileUpload(event) {
     const summaryArray = Object.entries(existingData).map(([name, data]) => {
         totalPicklists += data.picklists.length;
         totalSeconds += data.totalDuration;
+        // Keep the original ID/Name in the summary for data consistency
         return {
             'Associate': name,
             'Number of Picklists': data.picklists.length,
@@ -316,6 +404,7 @@ async function downloadDailySummary() {
         return;
     }
 
+    // The data is downloaded using the raw IDs/Names from the Firebase document, as desired.
     generateExcel(docSnap.data(), `summary_${dateId}`);
 }
 
@@ -370,6 +459,9 @@ async function downloadRangeSummary(range) {
                 if (!combinedData[name].picklists.includes(picklistCode)) {
                     combinedData[name].picklists.push(picklistCode);
                     // This relies on the structure `totalDuration` being accurate in the daily doc
+                    // NOTE: In downloadRangeSummary, this calculation may be flawed if totalDuration/picklists.length 
+                    // is based on a single day. A more accurate calculation might be needed for true range averages.
+                    // For now, retaining the existing logic, which averages the daily average duration.
                     const durationPerPick = data.totalDuration / data.picklists.length;
                     combinedData[name].totalDuration += durationPerPick;
                 }
@@ -383,7 +475,7 @@ async function downloadRangeSummary(range) {
         totalPicklists += data.picklists.length;
         totalSeconds += data.totalDuration;
         return {
-            'Associate': name,
+            'Associate': name, // Retain raw ID/Name for download
             'Number of Picklists': data.picklists.length,
             'Average Duration': formatDuration(data.picklists.length > 0 ? data.totalDuration / data.picklists.length : 0),
         };
