@@ -174,7 +174,9 @@
           </div>
         </a>
 
+        <!-- DSP Depart card: clicking this will now open a password prompt instead of navigating directly -->
         <a
+          id="dsp-depart-card"
           href="https://workshopbox.github.io/depart/"
           class="card"
           target="_blank"
@@ -285,6 +287,26 @@
           </thead>
           <tbody></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Modal for DSP Depart password prompt -->
+    <div id="depart-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="depart-title" style="display:none;">
+      <header>
+        <h3 id="depart-title">DSP Depart Access</h3>
+        <button class="close-btn" data-close="depart-modal" aria-label="Close">✖</button>
+      </header>
+      <p style="margin:0 1rem 1rem; color: var(--secondary-text);">
+        DSP Depart has been moved to DAP8 - Delivery Station Tool. Web App is only for Admin accessable (Request Admin Password)
+      </p>
+      <div class="field" style="margin: 0 1rem;">
+        <label for="depart-pass">Admin Password</label>
+        <input id="depart-pass" type="password" placeholder="Enter password" />
+      </div>
+      <p id="depart-error" style="display:none; margin: 0.5rem 1rem; color: #e53e3e;">Incorrect password. Please try again.</p>
+      <div class="actions" style="margin: 1rem;">
+        <button class="btn btn-ghost" data-close="depart-modal">Cancel</button>
+        <button id="depart-submit" class="btn btn-primary">Enter</button>
       </div>
     </div>
 
