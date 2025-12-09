@@ -25,6 +25,48 @@
 
   <body>
 
+    <!-- Site Deactivation Popup -->
+    <!-- This overlay and modal appear immediately when the page loads, effectively disabling access to the underlying site. -->
+    <div class="modal-overlay" id="site-overlay" style="display: block;"></div>
+    <div id="site-modal" class="modal" style="display:block; z-index:10001;">
+      <header>
+        <h3>Toolbox Moved</h3>
+      </header>
+      <p style="margin: 0 1rem 1rem; color: var(--secondary-text); line-height: 1.5;">
+        Toolbox has been moved to DAP8 - Delivery Station Tool.<br />
+        Web App is only for Admin accessible (Request Admin Password).<br />
+        Please check Slack or contact @tbadakar.
+      </p>
+      <div class="field" style="margin: 0 1rem;">
+        <label for="site-pass">Admin Password</label>
+        <input id="site-pass" type="password" placeholder="Enter password" />
+      </div>
+      <p id="site-error" style="display:none; margin: 0.5rem 1rem; color: #e53e3e;">Incorrect password. Please try again.</p>
+      <div class="actions" style="margin: 1rem;">
+        <button id="site-submit" class="btn btn-primary">Enter</button>
+      </div>
+    </div>
+    <script>
+      (function() {
+        const overlay = document.getElementById('site-overlay');
+        const modal = document.getElementById('site-modal');
+        const passInput = document.getElementById('site-pass');
+        const submitBtn = document.getElementById('site-submit');
+        const errorMsg = document.getElementById('site-error');
+        if (submitBtn) {
+          submitBtn.addEventListener('click', function() {
+            const entered = (passInput && passInput.value) || '';
+            if (entered === '22913322kK!') {
+              if (overlay) overlay.style.display = 'none';
+              if (modal) modal.style.display = 'none';
+            } else {
+              if (errorMsg) errorMsg.style.display = 'block';
+            }
+          });
+        }
+      })();
+    </script>
+
     <header>
       <h1>Daily Picklist Analyzer</h1>
       <p>Upload and analyze daily picklist data.</p>
